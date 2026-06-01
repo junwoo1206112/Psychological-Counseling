@@ -1,13 +1,15 @@
 {
   "expo": {
-    "name": "depression-check",
+    "name": "AI 심리상담 자가진단",
     "slug": "depression-check",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "scheme": "depression-check",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.depressioncheck.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -15,10 +17,16 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "package": "com.depressioncheck.app"
     },
     "web": {
+      "output": "static",
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar"
+    ]
   }
 }
