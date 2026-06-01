@@ -78,3 +78,35 @@ Domain: api.example.com
 ```
 
 정신건강 관련 응답은 민감한 정보가 될 수 있으므로 실제 사용자 데이터를 저장할 경우 개인정보 처리방침, 암호화, 보관 기간, 삭제 요청 절차를 함께 준비해야 합니다.
+
+## 6. Contabo VPS 배포
+
+Contabo를 사용할 경우 GitHub 저장소를 VPS에서 받아오고, Nginx로 `dist/` 폴더를 서빙하면 됩니다.
+
+DNS는 도메인 구매처 또는 Cloudflare에서 다음처럼 설정합니다.
+
+```text
+A  @    <Contabo 서버 IPv4>
+A  www  <Contabo 서버 IPv4>
+```
+
+서버 최초 세팅은 저장소를 clone한 뒤 아래 명령을 사용합니다.
+
+```bash
+sudo DOMAIN=your-domain.com WWW_DOMAIN=www.your-domain.com \
+  REPO_URL=https://github.com/junwoo1206112/Psychological-Counseling.git \
+  bash deploy/scripts/setup-contabo.sh
+```
+
+HTTPS 인증서는 DNS가 서버 IP를 바라본 뒤 발급합니다.
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+```
+
+이후 재배포는 다음 명령만 실행하면 됩니다.
+
+```bash
+sudo bash deploy/scripts/deploy-contabo.sh
+```
