@@ -1,0 +1,15 @@
+name: Linux deployment harness
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  deployment-harness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check deployment script syntax
+        run: bash -n deploy/scripts/release-lib.sh deploy/scripts/deploy-contabo.sh deploy/scripts/rollback-contabo.sh deploy/scripts/setup-contabo.sh
+      - name: Exercise isolated candidate deployment and rollback
+        run: bash deploy/tests/release-harness.sh

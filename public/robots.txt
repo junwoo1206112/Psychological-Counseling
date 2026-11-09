@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /survey
+Disallow: /result
+Disallow: /history
+Disallow: /crisis

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#2C6E63" />
+    <title>오프라인 안내 — 마음 체크</title>
+    <style>
+      :root { color-scheme: light; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 24px 20px 48px;
+        background: #f7fbfa;
+        color: #14213d;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+        line-height: 1.6;
+      }
+      main { max-width: 640px; margin: 0 auto; }
+      h1 { font-size: 24px; margin: 0 0 8px; }
+      h2 { font-size: 17px; margin: 24px 0 8px; }
+      p { font-size: 14px; margin: 8px 0; }
+      ul, ol { padding-left: 20px; margin: 8px 0; }
+      li { margin: 6px 0; font-size: 14px; }
+      a { color: #0d47a1; font-weight: 700; }
+      a:focus-visible { outline: 3px solid #1565c0; outline-offset: 2px; }
+      .crisis {
+        background: #fff4f4;
+        border: 1px solid #f2b8b5;
+        border-radius: 14px;
+        padding: 16px;
+        margin-top: 16px;
+      }
+      .note {
+        background: #fff8e1;
+        border: 1px solid #f3dfa2;
+        border-radius: 14px;
+        padding: 14px;
+        font-size: 12px;
+        color: #4b5d67;
+        margin-top: 22px;
+      }
+      .retry {
+        display: inline-block;
+        margin-top: 22px;
+        background: #2c6e63;
+        color: #fff;
+        text-decoration: none;
+        padding: 14px 22px;
+        border-radius: 12px;
+        min-height: 44px;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>오프라인 안내</h1>
+      <p>
+        현재 인터넷 연결이 없어 앱을 불러오지 못했습니다. 아래 위기 자원은 오프라인에서도 확인할 수 있습니다.
+      </p>
+
+      <section class="crisis" aria-labelledby="crisis-title">
+        <h2 id="crisis-title">지금 바로 도움받기</h2>
+        <ul>
+          <li><a href="tel:109">109 자살예방상담전화 (24시간)</a></li>
+          <li><a href="tel:119">119 응급 구급 (24시간)</a></li>
+          <li><a href="tel:112">112 경찰 (24시간)</a></li>
+          <li><a href="tel:1577-0199">1577-0199 정신건강 위기상담 (24시간)</a></li>
+          <li><a href="tel:1388">1388 청소년전화 (24시간)</a></li>
+          <li><a href="tel:1588-9191">1588-9191 생명의전화 (24시간)</a></li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="plan-title">
+        <h2 id="plan-title">안전 계획 6단계</h2>
+        <ol>
+          <li>나를 힘들게 하는 신호를 적어 둡니다. 예: 잠을 못 잔다, 혼자 있고 싶다.</li>
+          <li>혼자서 할 수 있는 대처를 떠올립니다. 예: 천천히 호흡하기, 짧게 산책하기, 샤워하기.</li>
+          <li>나를 편안하게 해 주는 사람이나 장소를 떠올립니다.</li>
+          <li>지금 연락할 수 있는 사람의 이름과 전화번호를 확인합니다.</li>
+          <li>도움을 요청할 곳을 확인합니다. 109, 1577-0199, 1388, 가까운 정신건강복지센터.</li>
+          <li>안전한 환경을 만듭니다. 쓸 수 있는 물건을 다른 사람에게 맡기거나 손이 닿지 않게 두고, 술은 줄입니다.</li>
+        </ol>
+      </section>
+
+      <p class="note">
+        이 앱은 응급 상황을 자동으로 감지하거나 구조를 요청하지 않습니다. 이 안내는 의학적 진단이 아니며,
+        본 제품은 의료기기가 아니므로 질병 유무를 판단할 수 없습니다. 질병 유무 판단을 위해서는 의사의 검진이 필요합니다.
+      </p>
+
+      <a class="retry" href="/">다시 시도하기</a>
+    </main>
+  </body>
+</html>

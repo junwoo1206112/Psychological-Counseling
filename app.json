@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "AI 심리상담 자가진단",
+    "name": "마음 체크 — 우울·자살 위험 자가 선별",
     "slug": "depression-check",
     "version": "1.0.0",
     "orientation": "portrait",

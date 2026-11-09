@@ -2,6 +2,8 @@
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-/var/www/depression-check}"
+RELEASES_DIR="${RELEASES_DIR:-${APP_DIR}-releases}"
+export APP_DIR RELEASES_DIR
 REPO_URL="${REPO_URL:-https://github.com/junwoo1206112/Psychological-Counseling.git}"
 DOMAIN="${DOMAIN:-example.com}"
 WWW_DOMAIN="${WWW_DOMAIN:-www.example.com}"
@@ -26,15 +28,33 @@ if [ ! -d "$APP_DIR/.git" ]; then
 fi
 
 cd "$APP_DIR"
-git fetch origin
-git checkout master
-git pull origin master
-npm ci
-npm run build:web
+mkdir -p "$RELEASES_DIR"
 
-cp deploy/nginx/depression-check.conf /etc/nginx/sites-available/depression-check
-sed -i "s/__DOMAIN__/$DOMAIN/g" /etc/nginx/sites-available/depression-check
-sed -i "s/__WWW_DOMAIN__/$WWW_DOMAIN/g" /etc/nginx/sites-available/depression-check
+# A candidate must pass in an isolated worktree before this new site is enabled.
+bash "$APP_DIR/deploy/scripts/deploy-contabo.sh"
+
+NGINX_CONF="/etc/nginx/sites-available/depression-check"
+if [ -e "$NGINX_CONF" ]; then
+  if [ "${FORCE_CONF_OVERWRITE:-0}" = "1" ]; then
+    backup="${NGINX_CONF}.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+    cp "$NGINX_CONF" "$backup"
+    echo "Backed up existing config to $backup (FORCE_CONF_OVERWRITE=1)."
+    install_conf=1
+  else
+    install_conf=0
+    echo "NOTE: $NGINX_CONF already exists; keeping it to preserve certbot/TLS edits."
+    echo "To replace it, review deploy/nginx/depression-check.conf and re-run with FORCE_CONF_OVERWRITE=1 (a timestamped .bak backup is created)."
+  fi
+else
+  install_conf=1
+fi
+
+if [ "$install_conf" = "1" ]; then
+  cp deploy/nginx/depression-check.conf "$NGINX_CONF"
+  sed -i "s/__DOMAIN__/$DOMAIN/g" "$NGINX_CONF"
+  sed -i "s/__WWW_DOMAIN__/$WWW_DOMAIN/g" "$NGINX_CONF"
+  sed -i "s|__RELEASE_ROOT__|$RELEASES_DIR|g" "$NGINX_CONF"
+fi
 ln -sf /etc/nginx/sites-available/depression-check /etc/nginx/sites-enabled/depression-check
 rm -f /etc/nginx/sites-enabled/default
 

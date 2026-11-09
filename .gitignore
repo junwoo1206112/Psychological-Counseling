@@ -42,3 +42,10 @@ yarn-error.*
 
 # Tauri (not used)
 src-tauri/
+playwright-report/
+test-results/
+
+# local tooling / upstream checkouts (not part of the app)
+ouroboros/
+Codex_AI_스킬/
+.claude/
