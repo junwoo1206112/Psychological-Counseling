@@ -3347,3 +3347,52 @@ npm.cmd run release:ready        → EXPECTED BLOCKED
 - 실제 기기 PWA·기존 탭 갱신·법무/임상 승인은 여전히 사람 증빙이다.
 
 ◆ deployed-site-smoke-hardened (Path C) → next: 실제 배포 후보 URL에서 deploy:smoke 실행 또는 실제 Phase 3 수동 시험
+
+## Cycle 65 — Phase 0~6 (2026-11-09): PWA 특수 경로 보안 헤더 상속 검사
+
+### Phase 0 — Inventory
+
+- `deploy:smoke`는 보안 헤더를 루트 HTML에서만 검사했다.
+- 과거 PWA 특수 파일 location의 `add_header`가 상위 CSP·X-Frame-Options 상속을 끊은 사례가 있어, 실제 응답에서 특수 경로 헤더를 확인할 필요가 있었다.
+
+### Phase 1 — Interview
+
+- 사용자가 “전 구현 방식”으로 다음 구현을 진행하도록 지시했다.
+- 결정: **manifest·SW·offline·crisis의 보안 헤더 상속을 스모크 검사에 추가**한다. 실제 승인은 아니다.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 배포 검사는 앱 로직을 바꾸지 않음 | 읽기 전용 |
+| B(위기·자살예방) | `/crisis`·offline 헤더 누락은 보호 약화 | 특수 경로 헤더 검사 |
+| C(구현·프라이버시) | Nginx location 상속 회귀 탐지 | CSP·XFO·nosniff·Referrer·Permissions |
+
+### Phase 3 — Seed
+
+- AC180~AC181 추가: 특수 경로 보안 헤더, 회귀 테스트.
+
+### Phase 4 — Implement
+
+- `lib/deployed-site-check.js`: `validateSecurityHeaders`를 분리하고 manifest/SW/offline/crisis 응답에 적용.
+- `tests/deployed-site-check.test.js`: 특수 경로 헤더 누락 FAIL 회귀 추가.
+- 이번 사이클은 test 99/99, 제품 코드 수정 없음.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd test                     → 99/99 PASS
+npm.cmd run test:e2e             → 46/46 PASS
+npm.cmd run a11y                 → PASS
+npm.cmd run skill:check          → PASS
+npm.cmd run security:build:check → PASS
+npm.cmd run manual:check         → EXPECTED BLOCKED
+npm.cmd run release:ready        → EXPECTED BLOCKED
+```
+
+### Phase 6 — Evolve
+
+- 실제 후보 URL에서 특수 경로 헤더 상속까지 검사할 수 있다.
+- 실제 기기 PWA·기존 탭 갱신·법무/임상 승인은 여전히 사람 증빙이다.
+
+◆ deployed-site-special-path-headers-checked (Path C) → next: 실제 배포 후보 URL에서 deploy:smoke 실행 또는 실제 Phase 3 수동 시험

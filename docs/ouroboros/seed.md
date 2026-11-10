@@ -386,6 +386,11 @@
 - [x] AC178. 매니페스트 아이콘 URL을 실제로 요청해 200·`image/png`인지 검사한다.
 - [x] AC179. 루트 HTML의 inline hydration script SHA-256이 CSP `script-src`와 일치하고, `script-src`에 `'unsafe-inline'`이 없음을 검사한다.
 
+### Cycle 65 — PWA 특수 경로 보안 헤더 상속 검사 (2026-11-09)
+
+- [x] AC180. `deploy:smoke`는 `/manifest.json`·`/sw.js`·`/offline.html`·`/crisis` 응답에도 CSP·X-Frame-Options·nosniff·Referrer-Policy·Permissions-Policy가 있는지 검사한다.
+- [x] AC181. 특수 경로에서 보안 헤더가 누락되면 스모크 검사가 FAIL하며, 회귀 테스트로 고정된다.
+
 ## Verification
 
 ```bash
@@ -439,5 +444,5 @@ npm.cmd run build:web
 
 ## Stop Condition
 
-- AC1~AC179 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
+- AC1~AC181 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
 - 추가 변경은 새 Seed를 만들어 Phase 1부터 시작.

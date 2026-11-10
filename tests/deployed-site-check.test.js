@@ -52,6 +52,7 @@ function fakeFetch({
   root = rootHtml,
   rootHeaders = validHeaders,
   manifestBody = JSON.stringify(manifest),
+  manifestHeaders = { ...validHeaders, 'content-type': 'application/json' },
   offline = offlineHtml,
   crisis = crisisHtml,
   iconStatus = 200,
@@ -59,10 +60,10 @@ function fakeFetch({
 } = {}) {
   return async (url) => {
     if (url.includes('/icons/')) return response('png', { status: iconStatus, headers: { 'content-type': iconType } });
-    if (url.endsWith('/manifest.json')) return response(manifestBody, { headers: { 'content-type': 'application/json' } });
-    if (url.endsWith('/sw.js')) return response(swText, { headers: { 'content-type': 'application/javascript' } });
-    if (url.endsWith('/offline.html')) return response(offline, { headers: { 'content-type': 'text/html' } });
-    if (url.endsWith('/crisis')) return response(crisis, { headers: { 'content-type': 'text/html' } });
+    if (url.endsWith('/manifest.json')) return response(manifestBody, { headers: manifestHeaders });
+    if (url.endsWith('/sw.js')) return response(swText, { headers: { ...validHeaders, 'content-type': 'application/javascript' } });
+    if (url.endsWith('/offline.html')) return response(offline, { headers: { ...validHeaders, 'content-type': 'text/html' } });
+    if (url.endsWith('/crisis')) return response(crisis, { headers: { ...validHeaders, 'content-type': 'text/html' } });
     return response(root, { headers: rootHeaders });
   };
 }
@@ -111,4 +112,13 @@ test('배포 스모크 검사는 정상 응답에서 PASS, 번들 누락·아이
   });
   assert.equal(iconFailed.ok, false);
   assert.match(iconFailed.failures.join('\n'), /HTTP 404/);
+});
+
+test('PWA 특수 경로의 보안 헤더 상속 누락을 FAIL로 처리한다', async () => {
+  const failed = await checkDeployedSite('https://example.com', {
+    fetchImpl: fakeFetch({ manifestHeaders: { 'content-type': 'application/json' } }),
+  });
+  assert.equal(failed.ok, false);
+  assert.match(failed.failures.join('\n'), /CSP 누락/);
+  assert.match(failed.failures.join('\n'), /X-Frame-Options/);
 });
