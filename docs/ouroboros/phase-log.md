@@ -2587,3 +2587,300 @@ npm.cmd run release:ready        → EXPECTED BLOCKED (사람 증빙 미완료)
 - 다음 최고 영향 작업은 Phase 3 수동 접근성·실기기 시험이다.
 
 ◆ remaining-phases-bulk-executed (Path C) → next: Phase 3 수동 접근성·실기기 증빙 착수
+
+## Cycle 50 — Phase 0~6 (2026-11-09): PHQ-9 한국어/영문 토글 E2E
+
+### Phase 0 — Inventory
+
+- AC5(한국어/영문 문항 토글·번역 고지)는 단위·정적 검사만 있고, 실제 설문 화면에서 토글이 문항을 바꾸는지 브라우저 검증이 없었다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **PHQ-9 첫 문항의 한국어/영문 토글 E2E 1건**을 구현 대상으로 확정했다.
+- 비목표: 문항·번역·채점 변경, 언어 설정 저장.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 한국어는 이해 보조 번역, 채점은 영문 원문 기준임을 화면에 유지 | 번역 고지 노출 확인 |
+| B(위기·자살예방) | 토글이 안전·위기 흐름을 방해하면 안 됨 | PHQ 단계에서만 토글, pageerror 0 |
+| C(구현·프라이버시) | 토글은 로컬 UI 상태만 사용 | 저장 영향 없음 |
+
+### Phase 3 — Seed
+
+- AC152 추가: PHQ-9 한국어/영문 토글·번역 고지 E2E.
+
+### Phase 4 — Implement
+
+- `e2e/safety-flow.spec.js`: PHQ-9 첫 문항에서 한국어 문항·번역 고지 확인 → 영문 원문 보기 → 한국어로 보기 복귀 검증.
+- 이번 사이클은 첫 실행에서 33/33 통과했으며 제품 코드 수정은 없었다.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run test:e2e              → PASS (33/33 Chromium)
+npm.cmd test                      → 90/90 PASS
+npm.cmd run validate              → PASS
+npm.cmd run a11y                  → PASS
+npm.cmd run skill:check           → PASS
+npm.cmd run security:build:check  → PASS
+npm.cmd run manual:check          → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 한국어/영문 토글은 브라우저 회귀 검사로 고정됐다.
+- 다음은 Cycle 50 후속 커밋·푸시와 실제 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ phq9-language-toggle-e2e-complete (Path C) → next: Cycle 50 후속 커밋·푸시 또는 실제 Phase 3 수동 시험
+
+## Cycle 51 — Phase 0~6 (2026-11-09): 추이 라벨·단건 삭제 E2E
+
+### Phase 0 — Inventory
+
+- 추이 차트 행 접근성 라벨(AC31)과 기록 한 건 삭제는 정적 감사·단위 테스트만 있고 실제 `/history` 브라우저 검사가 없었다.
+- 전체 삭제 E2E는 있었지만 단건 삭제 후 빈 상태·성공 안내 경로는 검증되지 않았다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **추이 행 접근성 라벨·단건 삭제 E2E 2건**을 구현 대상으로 확정했다.
+- 비목표: 추이 저장 스키마·그래프 디자인 변경.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 추이는 진단이 아니며 날짜·점수 맥락이 읽혀야 함 | 행 접근성 라벨 확인 |
+| B(위기·자살예방) | 삭제 성공/실패를 오인시키면 안 됨 | 단건 삭제 후 빈 상태·성공 안내 |
+| C(구현·프라이버시) | 삭제 시 저장소에서 실제 제거 | `entries` 0 확인 |
+
+### Phase 3 — Seed
+
+- AC153~AC154 추가: 추이 행 접근성 라벨, 단건 삭제 E2E.
+
+### Phase 4 — Implement
+
+- `e2e/safety-flow.spec.js`: E2E 2건 추가.
+  - 저장 후 `/history`에서 `우울 0점, 불안 0점` 접근성 라벨 확인.
+  - 단건 삭제 → 성공 안내·빈 상태·저장소 `entries` 0 확인.
+- 이번 사이클은 첫 실행에서 35/35 통과했으며 제품 코드 수정은 없었다.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run test:e2e              → PASS (35/35 Chromium)
+npm.cmd test                      → 90/90 PASS
+npm.cmd run validate              → PASS
+npm.cmd run a11y                  → PASS
+npm.cmd run skill:check           → PASS
+npm.cmd run security:build:check  → PASS
+npm.cmd run manual:check          → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 추이 라벨·단건 삭제는 브라우저 회귀 검사로 고정됐다.
+- 다음은 Cycle 50~51 후속 커밋·푸시와 실제 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ history-label-single-delete-e2e-complete (Path C) → next: Cycle 50~51 후속 커밋·푸시 또는 실제 Phase 3 수동 시험
+
+## Cycle 52 — Phase 0~6 (2026-11-09): 오프라인 PWA 위기 안내 E2E
+
+### Phase 0 — Inventory
+
+- PWA 오프라인 위기 안내는 정적 감사·수동 시나리오만 있고, 실제 Chromium에서 서비스 워커 오프라인 fallback을 검증하는 E2E가 없었다.
+- `public/sw.js`는 navigate 요청 실패 시 `/offline.html`을 반환한다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **오프라인 탐색 fallback E2E 1건**을 구현 대상으로 확정했다.
+- 비목표: 실제 설치된 PWA·모바일 기기·전화 앱 시험 대체.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 오프라인 안내는 진단이 아니라 위기 연결 정보 | 위기 번호 링크 확인 |
+| B(위기·자살예방) | 연결 단절 시에도 109 등 위기 자원이 보여야 함 | 오프라인 heading·109·119 링크 |
+| C(구현·프라이버시) | SW 캐시는 동일 출처 정적 자산만 | 오프라인 탐색 fallback만 검사 |
+
+### Phase 3 — Seed
+
+- AC155 추가: 오프라인 탐색 위기 안내.
+
+### Phase 4 — Implement
+
+- `e2e/offline.spec.js`: `/`에서 서비스 워커 ready·controller 대기 → `context.setOffline(true)` → `/crisis` 탐색 → 오프라인 안내·109·119 링크 확인.
+- 서비스 워커 상태 대기는 `navigator.serviceWorker.ready`와 `controller` 확인으로 고정.
+- 이번 사이클은 첫 실행에서 36/36 통과했으며 제품 코드 수정은 없었다.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run test:e2e              → PASS (36/36 Chromium)
+npm.cmd test                      → 90/90 PASS
+npm.cmd run validate              → PASS
+npm.cmd run a11y                  → PASS
+npm.cmd run skill:check           → PASS
+npm.cmd run security:build:check  → PASS
+npm.cmd run manual:check          → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 오프라인 fallback은 자동 회귀로 고정됐지만, 실제 설치 PWA·모바일 기기·전화 앱 시험은 여전히 Phase 3 수동 증빙이다.
+- 다음은 Cycle 50~52 후속 커밋·푸시와 실제 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ offline-pwa-crisis-e2e-complete (Path C) → next: Cycle 50~52 후속 커밋·푸시 또는 실제 Phase 3 수동 시험
+
+## Cycle 53 — Phase 0~6 (2026-11-09): 기능손상 urgent E2E
+
+### Phase 0 — Inventory
+
+- 기능손상 비채점 문항의 `very/extreme → urgent` 라우팅은 단위 테스트만 있고, 실제 설문·결과 화면의 브라우저 검사가 없었다.
+- PHQ-9·GAD-7이 0점이어도 기능손상이 크면 urgent 결과로 안내되어야 한다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **기능손상 very → urgent E2E 1건**을 구현 대상으로 확정했다.
+- 비목표: 기능손상 문항·라우팅 변경, 점수 포함.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 기능손상은 점수에 더하지 않고 urgent 안내에만 사용 | 점수 0·비채점 표시 확인 |
+| B(위기·자살예방) | 기능 악화는 위험 신호로 빠른 도움 안내 | urgent 결과·위기 화면 아님 확인 |
+| C(구현·프라이버시) | 비채점 문항이 점수에 포함되지 않음 | 결과 점수 0 확인 |
+
+### Phase 3 — Seed
+
+- AC156 추가: 기능손상 very → urgent 결과.
+
+### Phase 4 — Implement
+
+- `e2e/safety-flow.spec.js`: `completeImpairedSurvey` 헬퍼와 E2E 1건 추가.
+  - PHQ-9·GAD-7 0점, 기능손상 “많이 어려웠다” → `/result`, urgent 라벨·사유·비채점 박스, 우울·불안 0점 확인.
+- 이번 사이클은 첫 실행에서 37/37 통과했으며 제품 코드 수정은 없었다.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run test:e2e              → PASS (37/37 Chromium)
+npm.cmd test                      → 90/90 PASS
+npm.cmd run validate              → PASS
+npm.cmd run a11y                  → PASS
+npm.cmd run skill:check           → PASS
+npm.cmd run security:build:check  → PASS
+npm.cmd run manual:check          → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 기능손상 urgent 라우팅은 브라우저 회귀 검사로 고정됐다.
+- 다음은 Cycle 50~53 후속 커밋·푸시와 실제 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ functional-impairment-urgent-e2e-complete (Path C) → next: Cycle 50~53 후속 커밋·푸시 또는 실제 Phase 3 수동 시험
+
+## Cycle 54 — Phase 0~6 (2026-11-09): 지역 센터 공식 포털 E2E
+
+### Phase 0 — Inventory
+
+- 지역 센터 선택과 공식 포털 URL 연결은 정적 회귀 검사만 있고, 실제 화면에서 지역 선택 → 포털 열기까지 브라우저 검증이 없었다.
+- `openUrl`은 웹에서 `window.open`을 사용하므로 네트워크 없이 URL 배선을 검증할 수 있다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **지역 선택·공식 포털 URL E2E 1건**을 구현 대상으로 확정했다.
+- 비목표: 실제 포털 페이지 로딩·센터 정보 자동 조회.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 센터 검색은 진단이 아니라 지역 연결 안내 | 지역 선택·포털 연결만 |
+| B(위기·자살예방) | 위기 자원·1577-0199 안내 유지 | 기존 위기 배너·버튼 유지 |
+| C(구현·프라이버시) | 공식 포털 URL만 열고 입력값을 전송하지 않음 | `window.open` URL 캡처 |
+
+### Phase 3 — Seed
+
+- AC157 추가: 지역 선택 → 공식 포털 검색 URL.
+
+### Phase 4 — Implement
+
+- `e2e/safety-flow.spec.js`: `window.open`을 캡처하도록 주입하고, 서울특별시 선택 → “공식 포털에서 센터 검색” 클릭 → `mentalhealth.go.kr`·`PotalHealthFacListTab2.do`·`sc3=AFCS1` 포함 URL 확인.
+- 이번 사이클은 첫 실행에서 38/38 통과했으며 제품 코드 수정은 없었다.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run test:e2e              → PASS (38/38 Chromium)
+npm.cmd test                      → 90/90 PASS
+npm.cmd run validate              → PASS
+npm.cmd run a11y                  → PASS
+npm.cmd run skill:check           → PASS
+npm.cmd run security:build:check  → PASS
+npm.cmd run manual:check          → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 지역 센터 포털 연결은 브라우저 회귀 검사로 고정됐다.
+- 다음은 Cycle 50~54 후속 커밋·푸시와 실제 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ center-portal-e2e-complete (Path C) → next: Cycle 50~54 후속 커밋·푸시 또는 실제 Phase 3 수동 시험
+
+## Cycle 55 — Phase 0~6 (2026-11-09): 키보드 건너뛰기 링크 E2E
+
+### Phase 0 — Inventory
+
+- `본문으로 건너뛰기` 링크는 정적 a11y 감사만 있고, 실제 키보드 활성화 시 `#root` 포커스 이동을 브라우저에서 검증하지 않았다.
+- WCAG 2.4.1(건너뛰기 링크)은 핵심 접근성 기능이다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **키보드 건너뛰기 링크 E2E 1건**을 구현 대상으로 확정했다.
+- 비목표: 실제 스크린리더 수동 검증 대체.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 결과·위기 안내 접근성 기반 | 본문 포커스 이동만 |
+| B(위기·자살예방) | 키보드 사용자가 위기 CTA로 빠르게 이동 | skip link → `#root` |
+| C(구현·프라이버시) | 부트스트랩 스크립트만 사용, 저장·전송 없음 | pageerror 0 |
+
+### Phase 3 — Seed
+
+- AC158 추가: 키보드 건너뛰기 링크.
+
+### Phase 4 — Implement
+
+- `e2e/a11y.spec.js`: skip link 포커스 → Enter → `document.activeElement.id === 'root'` 확인.
+- 이번 사이클은 첫 실행에서 39/39 통과했으며 제품 코드 수정은 없었다.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run test:e2e              → PASS (39/39 Chromium)
+npm.cmd test                      → 90/90 PASS
+npm.cmd run validate              → PASS
+npm.cmd run a11y                  → PASS
+npm.cmd run skill:check           → PASS
+npm.cmd run security:build:check  → PASS
+npm.cmd run manual:check          → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 건너뛰기 링크는 자동 회귀로 고정됐지만 실제 NVDA·VoiceOver·TalkBack 검증은 Phase 3 수동 증빙이다.
+- 다음은 Cycle 50~55 후속 커밋·푸시와 실제 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ skip-link-e2e-complete (Path C) → next: Cycle 50~55 후속 커밋·푸시 또는 실제 Phase 3 수동 시험

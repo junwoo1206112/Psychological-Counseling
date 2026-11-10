@@ -97,6 +97,12 @@
 - **안전계획 메모 위기 화면 E2E** (2026-11-09, Cycle 47): 저장한 메모가 `/crisis`에서 다시 표시되고, 전체 삭제 후 위기 화면에서도 사라지는지 검증(E2E 30/30).
 - **위험 신호 결과 메모 E2E** (2026-11-09, Cycle 48): PHQ-9 문항 9=1 urgent 결과에서 저장 메모 즉시 노출, 메모 없음 시 작성 안내를 검증(E2E 32/32).
 - **남은 페이즈 일괄 실행** (2026-11-09, Cycle 49): Cycle 45~48을 `afaa28f`로 푸시. Browser safety·Linux harness CI PASS, 범위 해시 `bbb427a5`. 사람 증빙 게이트는 계속 BLOCKED.
+- **PHQ-9 한국어/영문 토글 E2E** (2026-11-09, Cycle 50): 한국어 문항·번역 고지 → 영문 원문 → 한국어 복귀를 검증(E2E 33/33).
+- **추이 라벨·단건 삭제 E2E** (2026-11-09, Cycle 51): 차트 행 날짜·우울·불안 접근성 라벨, 단건 삭제 후 빈 상태·성공 안내·저장소 제거를 검증(E2E 35/35).
+- **오프라인 PWA 위기 안내 E2E** (2026-11-09, Cycle 52): 서비스 워커 제어 후 오프라인 탐색이 `/offline.html` 위기 안내(109·119 링크)로 fallback 되는지 검증(E2E 36/36).
+- **기능손상 urgent E2E** (2026-11-09, Cycle 53): PHQ-9·GAD-7 0점이어도 기능손상 “많이 어려웠다”가 urgent 결과로 안내되고 점수에는 미포함됨을 검증(E2E 37/37).
+- **지역 센터 공식 포털 E2E** (2026-11-09, Cycle 54): 서울특별시 선택 후 공식 포털 위치기반 검색 URL(`PotalHealthFacListTab2.do`, `sc3=AFCS1...`)을 여는지 검증(E2E 38/38).
+- **키보드 건너뛰기 링크 E2E** (2026-11-09, Cycle 55): Enter 키로 `#root` 포커스가 이동하는지 검증(E2E 39/39).
 
 ### 아직 안 된 것 / 배포 전 필요
 
@@ -109,7 +115,8 @@
 - 2026-11-09 Cycle 45~48 변경을 `afaa28f`로 `master`에 푸시했습니다. 이전 기록 커밋은 `702d106`, `4ad7914`, `f8782fa`입니다.
 - Browser safety·Linux deployment harness GitHub Actions가 현재 모두 통과합니다.
 - Cycle 49 실행 기록은 `docs/ouroboros/phase-log.md`에 있습니다.
-- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋이 현재 앱입니다.
+- **Cycle 50~55 변경(PHQ-9 언어 토글·추이 라벨·단건 삭제·오프라인 PWA·기능손상 urgent·센터 포털·건너뛰기 링크 E2E)은 작업 트리에 있으며 아직 커밋 전입니다.**
+- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋과 작업 트리가 현재 앱입니다.
 - `ouroboros/`, `Codex_AI_스킬/`, `.claude/`, `dist/`, `test-results/`, `node_modules/`는 저장소에 포함하지 않습니다.
 
 ---
@@ -311,7 +318,7 @@ pwa:check             → PASS
 expo install --check  → PASS (Dependencies are up to date)
 npm ci                → PASS (클린 설치, 배포 스크립트와 동일)
 build:web             → PASS (9 static routes)
-test:e2e              → 32/32 Chromium PASS
+test:e2e              → 39/39 Chromium PASS
 audit --omit=dev      → 5 moderate, 0 high, 0 critical
 GitHub Actions        → Browser safety PASS, Linux deployment harness PASS
 release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
@@ -374,6 +381,12 @@ release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 - Cycle 47: 안전계획 메모 위기 화면 표시·삭제 E2E 2건(30/30).
 - Cycle 48: urgent 결과 저장 메모 노출·작성 안내 E2E 2건(32/32).
 - Cycle 49: Cycle 45~48 푸시(`afaa28f`), 두 CI PASS, 범위 해시 `bbb427a5`. 사람 증빙 게이트는 계속 차단.
+- Cycle 50: PHQ-9 한국어/영문 토글·번역 고지 E2E 1건(33/33).
+- Cycle 51: 추이 행 접근성 라벨·기록 단건 삭제 E2E 2건(35/35).
+- Cycle 52: 오프라인 PWA 위기 안내 fallback E2E 1건(36/36).
+- Cycle 53: 기능손상 very → urgent E2E 1건(37/37).
+- Cycle 54: 지역 센터 공식 포털 URL E2E 1건(38/38).
+- Cycle 55: 키보드 건너뛰기 링크 E2E 1건(39/39).
 
 ---
 

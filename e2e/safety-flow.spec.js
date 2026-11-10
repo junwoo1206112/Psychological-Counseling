@@ -57,6 +57,17 @@ async function completeUrgentSurvey(page, ageLabel = '만 18세 이상') {
   await expect(page).toHaveURL(/\/result$/);
 }
 
+async function completeImpairedSurvey(page) {
+  await startSurvey(page);
+  await moveToSafety(page);
+  for (let index = 0; index < 4; index += 1) await page.getByRole('radio', { name: '아니요' }).click();
+  for (let index = 0; index < 9; index += 1) await page.getByRole('radio', { name: '전혀 없었다' }).click();
+  await page.getByRole('radio', { name: '많이 어려웠다' }).click();
+  for (let index = 0; index < 7; index += 1) await page.getByRole('radio', { name: '전혀 없었다' }).click();
+  for (let index = 0; index < 4; index += 1) await page.getByRole('radio', { name: '아니요' }).click();
+  await expect(page).toHaveURL(/\/result$/);
+}
+
 test('동의 없는 설문 직접 진입은 시작 화면으로 되돌아간다', async ({ page }) => {
   const errors = capturePageErrors(page);
   await page.goto('/survey?ageGroup=adult');
@@ -421,5 +432,76 @@ test('위험 신호 결과에 저장된 메모가 없으면 작성 안내를 표
   await expect(page.getByText('빠른 전문가 도움이 필요해 보입니다')).toBeVisible();
   await expect(page.getByText(/지금 안전 계획을 적어 두면/)).toBeVisible();
   await expect(page.getByText('내가 적어 둔 안전 계획 메모')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('일상 기능의 큰 어려움은 점수와 무관하게 urgent 결과로 안내한다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  await completeImpairedSurvey(page);
+  await expect(page).toHaveURL(/\/result$/);
+  await expect(page.getByText('빠른 전문가 도움이 필요해 보입니다')).toBeVisible();
+  await expect(page.getByText('일상 기능의 어려움이 크게 보고되었습니다.')).toBeVisible();
+  await expect(page.getByText('일상 기능 (비채점)')).toBeVisible();
+  await expect(page.getByLabel(/우울 증상 0점/)).toBeVisible();
+  await expect(page.getByLabel(/불안 증상 0점/)).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('PHQ-9 문항은 한국어/영문 토글과 번역 고지를 제공한다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  await startAdultSurvey(page);
+  await moveToSafety(page);
+  for (let index = 0; index < 4; index += 1) await page.getByRole('radio', { name: '아니요' }).click();
+  await expect(page.getByText('우울 증상 · PHQ-9')).toBeVisible();
+  await expect(page.getByText('일을 하거나 즐거움을 느끼는 데 흥미나 즐거움이 거의 없었다.')).toBeVisible();
+  await expect(page.getByText('한국어 문항은 이해를 돕기 위한 번역입니다. 영문 원문 도구의 합산 규칙을 적용하지만, 이 앱의 한국어 번역과 웹 사용 방식은 임상 타당화가 완료되지 않았습니다.')).toBeVisible();
+  await page.getByText('영문 원문 보기', { exact: true }).click();
+  await expect(page.getByText('Little interest or pleasure in doing things.')).toBeVisible();
+  await expect(page.getByText('한국어로 보기', { exact: true })).toBeVisible();
+  await page.getByText('한국어로 보기', { exact: true }).click();
+  await expect(page.getByText('일을 하거나 즐거움을 느끼는 데 흥미나 즐거움이 거의 없었다.')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('저장된 추이 행은 날짜·우울·불안 점수 접근성 라벨을 제공한다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  await completeLowRiskSurvey(page);
+  await page.getByText('이 결과 저장하기').click();
+  await expect(page.getByText(/결과가 이 기기에 저장되었습니다/)).toBeVisible();
+  await page.goto('/history');
+  await expect(page.getByLabel(/우울 0점, 불안 0점/)).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('기록 한 건 삭제는 목록에서 제거하고 성공 안내를 유지한다', async ({ page }) => {
+  page.on('dialog', (dialog) => dialog.accept());
+  const errors = capturePageErrors(page);
+  await completeLowRiskSurvey(page);
+  await page.getByText('이 결과 저장하기').click();
+  await expect(page.getByText(/결과가 이 기기에 저장되었습니다/)).toBeVisible();
+  await page.goto('/history');
+  await page.getByText('이 기록 삭제').click();
+  await expect(page.getByText('저장된 기록을 삭제했습니다.')).toBeVisible();
+  await expect(page.getByText('아직 저장된 결과가 없습니다')).toBeVisible();
+  const cleared = await page.evaluate(() => JSON.parse(localStorage.getItem('maeumcheck:v1:history')));
+  expect(cleared.entries).toHaveLength(0);
+  expect(errors).toEqual([]);
+});
+
+test('지역 선택은 공식 포털 센터 검색 URL을 연다', async ({ context, page }) => {
+  await context.addInitScript(() => {
+    window.__openedUrls = [];
+    window.open = (url) => {
+      window.__openedUrls.push(String(url));
+      return {};
+    };
+  });
+  const errors = capturePageErrors(page);
+  await page.goto('/centers');
+  await page.getByText('서울특별시', { exact: true }).click();
+  await expect(page.getByText('서울특별시 정신건강복지센터 찾기')).toBeVisible();
+  await page.getByText('공식 포털에서 센터 검색').click();
+  const opened = await page.evaluate(() => window.__openedUrls);
+  expect(opened.some((url) => url.includes('mentalhealth.go.kr') && url.includes('PotalHealthFacListTab2.do') && url.includes('sc3=AFCS1'))).toBe(true);
   expect(errors).toEqual([]);
 });
