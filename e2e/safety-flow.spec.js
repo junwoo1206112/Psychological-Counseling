@@ -6,12 +6,16 @@ function capturePageErrors(page) {
   return errors;
 }
 
-async function startAdultSurvey(page) {
+async function startSurvey(page, ageLabel = '만 18세 이상') {
   await page.goto('/');
   await page.getByText('위 내용을 확인했고, 자가 선별에 동의합니다.').click();
-  await page.getByText('만 18세 이상').click();
+  await page.getByText(ageLabel, { exact: true }).click();
   await page.getByText('자가 선별 시작하기').click();
   await expect(page.getByText('지금 이 확인에서 가장 먼저 받고 싶은 도움은 무엇인가요?')).toBeVisible();
+}
+
+async function startAdultSurvey(page) {
+  await startSurvey(page);
 }
 
 async function moveToSafety(page) {
@@ -28,6 +32,17 @@ async function moveToAsqAcuity(page) {
   await page.getByRole('radio', { name: '예' }).click();
   for (let index = 0; index < 3; index += 1) await page.getByRole('radio', { name: '아니요' }).click();
   await expect(page.getByText('마지막 확인')).toBeVisible();
+}
+
+async function completeLowRiskSurvey(page, ageLabel = '만 18세 이상') {
+  await startSurvey(page, ageLabel);
+  await moveToSafety(page);
+  for (let index = 0; index < 4; index += 1) await page.getByRole('radio', { name: '아니요' }).click();
+  for (let index = 0; index < 9; index += 1) await page.getByRole('radio', { name: '전혀 없었다' }).click();
+  await page.getByRole('radio', { name: '전혀 어렵지 않았다' }).click();
+  for (let index = 0; index < 7; index += 1) await page.getByRole('radio', { name: '전혀 없었다' }).click();
+  for (let index = 0; index < 4; index += 1) await page.getByRole('radio', { name: '아니요' }).click();
+  await expect(page).toHaveURL(/\/result$/);
 }
 
 test('동의 없는 설문 직접 진입은 시작 화면으로 되돌아간다', async ({ page }) => {
@@ -95,5 +110,251 @@ test('결과 직접 진입은 누락 결과 가드를 보여준다', async ({ pa
   const errors = capturePageErrors(page);
   await page.goto('/result');
   await expect(page.getByText('결과를 불러올 수 없습니다')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('정상 완료는 결과 화면과 선별 점수를 보여준다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  await completeLowRiskSurvey(page);
+  await expect(page.getByRole('heading', { name: '자가 선별 결과' })).toBeVisible();
+  await expect(page.getByText('선별 점수', { exact: true })).toBeVisible();
+  await expect(page.getByText('우울 증상', { exact: true })).toBeVisible();
+  await expect(page.getByText('불안 증상', { exact: true })).toBeVisible();
+  await expect(page.getByText('자살 위험 선별').first()).toBeVisible();
+  await expect(page.getByText('음성', { exact: true })).toBeVisible();
+  await expect(page.getByText(/진단이 아닙니다/)).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('결과 세션은 원본 응답 없이 점수·위험 요약만 저장한다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  await completeLowRiskSurvey(page);
+  const raw = await page.evaluate(() => sessionStorage.getItem('maeumcheck:v1:last-result'));
+  expect(raw).not.toBeNull();
+  const parsed = JSON.parse(raw);
+  expect(parsed.schemaVersion).toBe(2);
+  const result = parsed.result;
+  expect(Object.keys(result).sort()).toEqual(['asq', 'depression', 'gad7', 'impairment', 'impairmentLabel', 'isYouth', 'risk']);
+  expect(Object.keys(result.depression).sort()).toEqual(['band', 'deathThoughtSignal', 'instrument', 'max', 'total']);
+  expect(Object.keys(result.gad7).sort()).toEqual(['band', 'max', 'total']);
+  expect(Object.keys(result.asq).sort()).toEqual(['acute', 'positive']);
+  expect(result.depression.total).toBe(0);
+  expect(result.gad7.total).toBe(0);
+  expect(result.asq).toEqual({ acute: false, positive: false });
+  expect(result.risk.tier).toBe('low');
+  expect(JSON.stringify(result)).not.toMatch(/"(answers|safety|checkin|phq9Answers|gad7Answers|asqAnswers)"/i);
+  expect(JSON.stringify(result)).not.toContain('전혀 없었다');
+  expect(errors).toEqual([]);
+});
+
+test('결과 저장은 선택이며 최소 요약만 저장하고 전체 삭제할 수 있다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  page.on('dialog', (dialog) => dialog.accept());
+  await completeLowRiskSurvey(page);
+  expect(await page.evaluate(() => localStorage.getItem('maeumcheck:v1:history'))).toBeNull();
+  await page.getByText('이 결과 저장하기').click();
+  await expect(page.getByText(/결과가 이 기기에 저장되었습니다/)).toBeVisible();
+  const raw = await page.evaluate(() => localStorage.getItem('maeumcheck:v1:history'));
+  expect(raw).not.toBeNull();
+  const history = JSON.parse(raw);
+  expect(history.schemaVersion).toBe(1);
+  expect(history.entries).toHaveLength(1);
+  const entry = history.entries[0];
+  expect(Object.keys(entry).sort()).toEqual(['asq', 'date', 'gad7', 'id', 'phq9', 'risk']);
+  expect(Object.keys(entry.phq9).sort()).toEqual(['bandId', 'bandLabel', 'instrument', 'total']);
+  expect(Object.keys(entry.gad7).sort()).toEqual(['bandId', 'bandLabel', 'total']);
+  expect(entry.phq9.total).toBe(0);
+  expect(entry.gad7.total).toBe(0);
+  expect(entry.asq).toEqual({ acute: false, positive: false });
+  expect(entry.risk.tier).toBe('low');
+  expect(JSON.stringify(entry)).not.toContain('전혀 없었다');
+  expect(JSON.stringify(entry)).not.toMatch(/"answers"/i);
+  await page.goto('/history');
+  await expect(page.getByText(/저장된 결과 1건/)).toBeVisible();
+  await expect(page.getByText(/우울\(PHQ-9\): 0\/27/)).toBeVisible();
+  await page.getByText('모든 기록 삭제').click();
+  await expect(page.getByText('저장된 기록을 삭제했습니다.')).toBeVisible();
+  const cleared = await page.evaluate(() => JSON.parse(localStorage.getItem('maeumcheck:v1:history')));
+  expect(cleared.entries).toHaveLength(0);
+  expect(errors).toEqual([]);
+});
+
+test('청소년 정상 완료는 PHQ-A와 1388 안내를 표시한다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  await completeLowRiskSurvey(page, '만 14~17세');
+  await expect(page.getByRole('heading', { name: '자가 선별 결과' })).toBeVisible();
+  await expect(page.getByText('PHQ-A · 지난 2주', { exact: true })).toBeVisible();
+  await expect(page.getByText('PHQ-9 · 지난 2주', { exact: true })).toHaveCount(0);
+  await expect(page.getByText(/1388\(청소년전화\)에서 먼저/)).toBeVisible();
+  const raw = await page.evaluate(() => sessionStorage.getItem('maeumcheck:v1:last-result'));
+  const parsed = JSON.parse(raw);
+  expect(parsed.result.isYouth).toBe(true);
+  expect(parsed.result.depression.instrument).toBe('PHQ-A');
+  expect(errors).toEqual([]);
+});
+
+test('localStorage가 차단되어도 결과와 기록 안내가 렌더된다', async ({ context, page }) => {
+  await context.addInitScript(() => {
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      get() {
+        throw new Error('localStorage blocked for test');
+      },
+    });
+  });
+  const errors = capturePageErrors(page);
+  await completeLowRiskSurvey(page);
+  expect(await page.evaluate(() => {
+    try {
+      window.localStorage.getItem('probe');
+      return 'available';
+    } catch {
+      return 'blocked';
+    }
+  })).toBe('blocked');
+  await expect(page.getByRole('heading', { name: '자가 선별 결과' })).toBeVisible();
+  await expect(page.getByText('선별 점수', { exact: true })).toBeVisible();
+  await expect(page.getByText('이 결과 저장하기')).toHaveCount(0);
+  await page.goto('/history');
+  await expect(page.getByText('기록 기능을 사용할 수 없습니다')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('sessionStorage가 차단되어도 같은 탭에서 선별과 결과가 동작한다', async ({ context, page }) => {
+  await context.addInitScript(() => {
+    Object.defineProperty(window, 'sessionStorage', {
+      configurable: true,
+      get() {
+        throw new Error('sessionStorage blocked for test');
+      },
+    });
+  });
+  const errors = capturePageErrors(page);
+  await completeLowRiskSurvey(page);
+  expect(await page.evaluate(() => {
+    try {
+      window.sessionStorage.getItem('probe');
+      return 'available';
+    } catch {
+      return 'blocked';
+    }
+  })).toBe('blocked');
+  await expect(page.getByRole('heading', { name: '자가 선별 결과' })).toBeVisible();
+  await expect(page.getByText('선별 점수', { exact: true })).toBeVisible();
+  await expect(page.getByText('이 결과 저장하기')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('localStorage 저장 실패를 성공으로 표시하지 않는다', async ({ context, page }) => {
+  await context.addInitScript(() => {
+    const original = Storage.prototype.setItem;
+    Storage.prototype.setItem = function blockLocalStorageWrite(key, value) {
+      if (this === window.localStorage) throw new Error('localStorage write blocked for test');
+      return original.call(this, key, value);
+    };
+  });
+  const errors = capturePageErrors(page);
+  await completeLowRiskSurvey(page);
+  await page.getByText('이 결과 저장하기').click();
+  await expect(page.getByText(/저장에 실패했습니다/)).toBeVisible();
+  await expect(page.getByText(/결과가 이 기기에 저장되었습니다/)).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem('maeumcheck:v1:history'))).toBeNull();
+  expect(errors).toEqual([]);
+});
+
+test('기록 삭제 실패를 성공으로 표시하지 않고 기록을 보존한다', async ({ page }) => {
+  page.on('dialog', (dialog) => dialog.accept());
+  const errors = capturePageErrors(page);
+  await completeLowRiskSurvey(page);
+  await page.getByText('이 결과 저장하기').click();
+  await expect(page.getByText(/결과가 이 기기에 저장되었습니다/)).toBeVisible();
+  await page.goto('/history');
+  await expect(page.getByText(/저장된 결과 1건/)).toBeVisible();
+  await page.evaluate(() => {
+    const original = Storage.prototype.setItem;
+    Storage.prototype.setItem = function blockLocalStorageWrite(key, value) {
+      if (this === window.localStorage) throw new Error('localStorage write blocked for test');
+      return original.call(this, key, value);
+    };
+  });
+  await page.getByText('모든 기록 삭제').click();
+  await expect(page.getByText(/삭제에 실패했습니다/)).toBeVisible();
+  await expect(page.getByText('저장된 기록을 삭제했습니다.')).toHaveCount(0);
+  const raw = await page.evaluate(() => localStorage.getItem('maeumcheck:v1:history'));
+  expect(JSON.parse(raw).entries).toHaveLength(1);
+  expect(errors).toEqual([]);
+});
+
+test('만 14세 미만은 법정대리인 안내와 1388을 표시하고 선별을 시작할 수 없다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  await page.goto('/');
+  await page.getByText('위 내용을 확인했고, 자가 선별에 동의합니다.').click();
+  await page.getByText('만 14세 미만', { exact: true }).click();
+  await expect(page.getByText(/법정대리인 동의가 필요합니다/)).toBeVisible();
+  await expect(page.getByText('1388 상담', { exact: true })).toBeVisible();
+  const startButton = page.getByText('자가 선별 시작하기', { exact: true }).locator('..');
+  await expect(startButton).toHaveAttribute('aria-disabled', 'true');
+  await expect(page.getByText('지금 이 확인에서 가장 먼저 받고 싶은 도움은 무엇인가요?')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('만 14세 미만 설문 직접 진입은 시작 화면으로 되돌아간다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  await page.goto('/survey?ageGroup=child');
+  await expect(page.getByRole('heading', { name: '우울·자살 위험 자가 선별' })).toBeVisible();
+  await expect(page.getByText('지금 이 확인에서 가장 먼저 받고 싶은 도움은 무엇인가요?')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('안전계획 메모 저장 실패를 성공으로 표시하지 않는다', async ({ context, page }) => {
+  await context.addInitScript(() => {
+    const original = Storage.prototype.setItem;
+    Storage.prototype.setItem = function blockLocalStorageWrite(key, value) {
+      if (this === window.localStorage) throw new Error('localStorage write blocked for test');
+      return original.call(this, key, value);
+    };
+  });
+  const errors = capturePageErrors(page);
+  await page.goto('/resources');
+  await expect(page.getByText('나의 안전 계획 메모 (선택)')).toBeVisible();
+  await page.getByLabel('1단계 · 나를 힘들게 하는 신호').fill('저장되면 안 되는 메모');
+  await page.getByText('메모 저장하기').click();
+  await expect(page.getByText(/저장에 실패했습니다/)).toBeVisible();
+  await expect(page.getByText(/이 기기에 저장되었습니다/)).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem('maeumcheck:v1:safety-plan'))).toBeNull();
+  expect(errors).toEqual([]);
+});
+
+test('안전계획 메모 삭제 실패를 성공으로 표시하지 않고 메모를 보존한다', async ({ page }) => {
+  page.on('dialog', (dialog) => dialog.accept());
+  const errors = capturePageErrors(page);
+  await page.goto('/resources');
+  await page.getByLabel('1단계 · 나를 힘들게 하는 신호').fill('보존할 메모');
+  await page.getByText('메모 저장하기').click();
+  await expect(page.getByText(/이 기기에 저장되었습니다/)).toBeVisible();
+  await page.evaluate(() => {
+    const original = Storage.prototype.removeItem;
+    Storage.prototype.removeItem = function blockLocalStorageRemove(key) {
+      if (this === window.localStorage) throw new Error('localStorage remove blocked for test');
+      return original.call(this, key);
+    };
+  });
+  await page.getByText('전체 삭제').click();
+  await expect(page.getByText(/삭제에 실패했습니다/)).toBeVisible();
+  await expect(page.getByText('저장된 메모를 모두 삭제했습니다.')).toHaveCount(0);
+  const plan = await page.evaluate(() => JSON.parse(localStorage.getItem('maeumcheck:v1:safety-plan')));
+  expect(plan.fields.signals).toBe('보존할 메모');
+  expect(errors).toEqual([]);
+});
+
+test('청소년 결과의 다시 검사하기는 PHQ-A 연령대를 유지한다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  await completeLowRiskSurvey(page, '만 14~17세');
+  await page.getByText('다시 검사하기').click();
+  await expect(page).toHaveURL(/\/survey\?.*ageGroup=youth/);
+  await expect(page.getByText('지금 이 확인에서 가장 먼저 받고 싶은 도움은 무엇인가요?')).toBeVisible();
+  await moveToSafety(page);
+  for (let index = 0; index < 4; index += 1) await page.getByRole('radio', { name: '아니요' }).click();
+  await expect(page.getByText('우울 증상 · PHQ-A')).toBeVisible();
   expect(errors).toEqual([]);
 });

@@ -194,13 +194,14 @@ export default function History() {
             <TouchableOpacity style={s.clearBtn} onPress={handleClear} activeOpacity={0.82}>
               <Text style={s.clearText}>모든 기록 삭제</Text>
             </TouchableOpacity>
-            {status === 'deleted' || status === 'cleared' ? (
-              <Text style={s.statusOk} accessibilityLiveRegion="polite">저장된 기록을 삭제했습니다.</Text>
-            ) : status === 'failed' ? (
-              <Text style={s.statusFail} accessibilityLiveRegion="polite">삭제에 실패했습니다. 브라우저 저장 공간을 확인해 주세요.</Text>
-            ) : null}
           </>
         )}
+
+        {status === 'deleted' || status === 'cleared' ? (
+          <Text style={s.statusOk} accessibilityLiveRegion="polite">저장된 기록을 삭제했습니다.</Text>
+        ) : status === 'failed' ? (
+          <Text style={s.statusFail} accessibilityLiveRegion="polite">삭제에 실패했습니다. 브라우저 저장 공간을 확인해 주세요.</Text>
+        ) : null}
 
         <View style={s.notice}>
           <Text style={s.noticeText}>

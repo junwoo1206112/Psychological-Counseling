@@ -45,7 +45,7 @@ src-tauri/
 playwright-report/
 test-results/
 
-# local tooling / upstream checkouts (not part of the app)
-ouroboros/
-Codex_AI_스킬/
-.claude/
+# local tooling / upstream checkouts (root only; docs/ouroboros must stay tracked)
+/ouroboros/
+/Codex_AI_스킬/
+/.claude/

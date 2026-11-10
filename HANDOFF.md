@@ -85,6 +85,12 @@
 - **접근성 마무리**: 추이 차트 행별 접근성 라벨, 지역 그리드 360px 미만 2열, SW 아이콘 프리캐시(v2).
 - **배포 후보 E2E 게이트·TLS 보호** (2026-11-07, Cycle 34): `deploy-contabo.sh`가 `build:web` 뒤 Playwright chromium 설치(root `--with-deps` 분기)와 `test:e2e`를 게이트로 실행. `setup-contabo.sh`는 기존 Nginx(certbot TLS) 구성을 자동 덮어쓰지 않고 `FORCE_CONF_OVERWRITE=1` 명시 시에만 백업 후 교체. E2E 실패 시 라이브 보존을 하니스 `e2e-fail` 시나리오로 고정.
 - **Expo 58 업그레이드** (2026-11-09, Cycle 35): Expo 58.0.23·RN 0.88.1·React 19.3·Router 58.0.30으로 정렬. SDK 58 정적 렌더링 계약에 맞춰 `app/+html.js`가 `useServerDocumentContext()`의 `headNodes`/`bodyNodes`를 렌더하도록 수정(누락 시 앱 번들이 HTML에서 빠져 클릭이 동작하지 않음). `security:build:check`가 앱 JS 번들 누락을 차단. production 감사는 critical 1·high 16 → **critical/high 0**, moderate 5(Expo CLI 전이)로 감소.
+- **정상 완료·저장 경계 E2E** (2026-11-09, Cycle 37): E2E 3건 추가로 **12/12**. 정상 완료 결과 화면, `sessionStorage` 요약 최소화(원본 응답 없음), 결과 저장 opt-in·최소 필드·전체 삭제를 검증. 전체 삭제 후 목록이 비면 성공 안내가 사라지던 UI 결함을 수정.
+- **청소년·저장소 차단 E2E** (2026-11-09, Cycle 39): E2E 3건 추가로 **15/15**. 만 14~17세 PHQ-A·1388 안내, `localStorage` 차단 시 결과·기록 안내 유지, `sessionStorage` 차단 시 메모리 fallback 동작을 검증.
+- **저장·삭제 실패 E2E** (2026-11-09, Cycle 40): E2E 2건 추가로 **17/17**. `setItem` 예외 시 저장 실패 안내·기록 부재, 삭제 실패 안내·기존 기록 보존을 검증.
+- **만 14세 미만 연령 게이트 E2E** (2026-11-09, Cycle 41): E2E 2건 추가로 **19/19**. 법정대리인·1388 안내, 시작 버튼 비활성, `/survey?ageGroup=child` 직접 진입 차단을 검증.
+- **안전계획 메모 실패 E2E** (2026-11-09, Cycle 42): E2E 2건 추가로 **21/21**. 메모 저장 실패 시 저장 값·성공 문구 부재, 삭제 실패 시 기존 메모 보존을 검증.
+- **청소년 재검사 ageGroup E2E** (2026-11-09, Cycle 43): E2E 1건 추가로 **22/22**. 청소년 결과의 “다시 검사하기”가 `ageGroup=youth`로 진입하고 안전 확인 후 PHQ-A로 복귀하는지 검증.
 
 ### 아직 안 된 것 / 배포 전 필요
 
@@ -94,8 +100,9 @@
 
 ### Git 상태
 
-- 2026-11-09 사용자 요청으로 현재 트리를 `master`에 커밋·푸시했습니다. 이후 변경은 새 커밋으로 남기세요.
-- 과거 커밋에는 50문항 버전이 남아 있습니다. **최신 커밋**이 현재 앱입니다.
+- 2026-11-09 `6f251fe`까지 `master`에 커밋·푸시했습니다. 다만 Cycle 36의 `.gitignore` 패턴이 `docs/ouroboros/`까지 제외해 **Seed·Phase 기록이 원격에서 누락**됐고, 로컬에서 루트 기준 패턴으로 수정했습니다.
+- **Cycle 37~43 변경(E2E 13건·기록 삭제 안내·gitignore 복구)은 작업 트리에 있으며 아직 커밋 전입니다.** 후속 커밋·푸시가 필요합니다.
+- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋과 작업 트리가 현재 앱입니다.
 - `ouroboros/`, `Codex_AI_스킬/`, `.claude/`, `dist/`, `test-results/`, `node_modules/`는 저장소에 포함하지 않습니다.
 
 ---
@@ -296,7 +303,7 @@ pwa:check             → PASS
 expo install --check  → PASS (Dependencies are up to date)
 npm ci                → PASS (클린 설치, 배포 스크립트와 동일)
 build:web             → PASS (9 static routes)
-test:e2e              → 9/9 Chromium PASS
+test:e2e              → 22/22 Chromium PASS
 audit --omit=dev      → 5 moderate, 0 high, 0 critical
 release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 ```
@@ -305,6 +312,7 @@ release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 
 ## 7. 다음 작업 권장 순서
 
+0. **후속 커밋·푸시**: Cycle 37~43 변경(E2E 13건·기록 삭제 안내·`docs/ouroboros` 복구)이 아직 원격에 없습니다. 먼저 커밋·푸시하세요.
 1. **한국어 타당화**: `docs/validation/korean-instrument-validation-plan.md`대로 번역 대조 → 인지면담 → 파일럿 → 본조사.
 2. **실제 스크린리더/기기 테스트**: `docs/a11y-manual-test-plan.md`대로 NVDA/VoiceOver/TalkBack, 320px·200%·전화 앱·오프라인을 현재 범위 해시로 기록.
 3. **독립 A/B/C·법무·임상 운영 게이트**: 실제 외부 검토·후속연결/BSSA 책임 증빙을 수집한 뒤에만 `release:ready`를 재검토.
@@ -343,6 +351,14 @@ release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 - Cycle 33: 마감 전 A/B/C·UI·배포 재검토, 방어적 결과 입력·도움 우선/ASQ 이전·PWA 보안 헤더 보완. 상세는 `docs/research/final-release-review-2026-11-07.md`.
 - Cycle 34: 배포 후보 E2E 게이트·chromium 설치 분기·기존 TLS 구성 보호.
 - Cycle 35: Expo 56→58 업그레이드, SDK 58 `+html` bodyNodes 보완, 앱 번들 누락 배포 감사, production critical/high 0. 상세는 `docs/ouroboros/phase-log.md`.
+- Cycle 36: 공개 저장소 커밋·푸시 안전성, 로컬 도구 제외·경로 일반화·비밀 스캔.
+- Cycle 37: 정상 완료·세션 최소화·저장 opt-in E2E, 기록 전체 삭제 성공 안내 수정.
+- Cycle 38: `.gitignore` 루트 앵커링으로 `docs/ouroboros` 기록 추적 복구, 로컬 경로 표기 제거.
+- Cycle 39: 청소년 PHQ-A·1388, localStorage/sessionStorage 차단 E2E 3건 추가(15/15).
+- Cycle 40: 저장·삭제 실패 안내 E2E 2건 추가(17/17).
+- Cycle 41: 만 14세 미만 연령 게이트 E2E 2건 추가(19/19).
+- Cycle 42: 안전계획 메모 저장·삭제 실패 E2E 2건 추가(21/21).
+- Cycle 43: 청소년 재검사 ageGroup 유지 E2E 1건 추가(22/22).
 
 ---
 
