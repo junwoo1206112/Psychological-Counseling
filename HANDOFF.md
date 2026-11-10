@@ -91,6 +91,7 @@
 - **만 14세 미만 연령 게이트 E2E** (2026-11-09, Cycle 41): E2E 2건 추가로 **19/19**. 법정대리인·1388 안내, 시작 버튼 비활성, `/survey?ageGroup=child` 직접 진입 차단을 검증.
 - **안전계획 메모 실패 E2E** (2026-11-09, Cycle 42): E2E 2건 추가로 **21/21**. 메모 저장 실패 시 저장 값·성공 문구 부재, 삭제 실패 시 기존 메모 보존을 검증.
 - **청소년 재검사 ageGroup E2E** (2026-11-09, Cycle 43): E2E 1건 추가로 **22/22**. 청소년 결과의 “다시 검사하기”가 `ageGroup=youth`로 진입하고 안전 확인 후 PHQ-A로 복귀하는지 검증.
+- **권장 순서 일괄 실행·CI 하네스 수정** (2026-11-09, Cycle 44): Cycle 37~43을 `702d106`으로 푸시. Linux harness의 `expect_failure`가 exit 42를 반환하던 버그를 `4ad7914`로 수정해 Browser safety·Linux harness CI 모두 통과. 사람 증빙 게이트는 계속 BLOCKED.
 
 ### 아직 안 된 것 / 배포 전 필요
 
@@ -100,9 +101,9 @@
 
 ### Git 상태
 
-- 2026-11-09 `6f251fe`까지 `master`에 커밋·푸시했습니다. 다만 Cycle 36의 `.gitignore` 패턴이 `docs/ouroboros/`까지 제외해 **Seed·Phase 기록이 원격에서 누락**됐고, 로컬에서 루트 기준 패턴으로 수정했습니다.
-- **Cycle 37~43 변경(E2E 13건·기록 삭제 안내·gitignore 복구)은 작업 트리에 있으며 아직 커밋 전입니다.** 후속 커밋·푸시가 필요합니다.
-- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋과 작업 트리가 현재 앱입니다.
+- 2026-11-09 Cycle 37~43 변경과 `docs/ouroboros` 기록을 `702d106`으로, CI 하네스 수정을 `4ad7914`로 `master`에 푸시했습니다.
+- Browser safety·Linux deployment harness GitHub Actions가 현재 모두 통과합니다.
+- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋이 현재 앱입니다.
 - `ouroboros/`, `Codex_AI_스킬/`, `.claude/`, `dist/`, `test-results/`, `node_modules/`는 저장소에 포함하지 않습니다.
 
 ---
@@ -305,6 +306,7 @@ npm ci                → PASS (클린 설치, 배포 스크립트와 동일)
 build:web             → PASS (9 static routes)
 test:e2e              → 22/22 Chromium PASS
 audit --omit=dev      → 5 moderate, 0 high, 0 critical
+GitHub Actions        → Browser safety PASS, Linux deployment harness PASS
 release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 ```
 
@@ -312,7 +314,7 @@ release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 
 ## 7. 다음 작업 권장 순서
 
-0. **후속 커밋·푸시**: Cycle 37~43 변경(E2E 13건·기록 삭제 안내·`docs/ouroboros` 복구)이 아직 원격에 없습니다. 먼저 커밋·푸시하세요.
+0. **완료**: Cycle 37~43 푸시(`702d106`)와 CI 하네스 수정(`4ad7914`). 이제 실제 배포 후보·사람 증빙으로 진행하세요.
 1. **한국어 타당화**: `docs/validation/korean-instrument-validation-plan.md`대로 번역 대조 → 인지면담 → 파일럿 → 본조사.
 2. **실제 스크린리더/기기 테스트**: `docs/a11y-manual-test-plan.md`대로 NVDA/VoiceOver/TalkBack, 320px·200%·전화 앱·오프라인을 현재 범위 해시로 기록.
 3. **독립 A/B/C·법무·임상 운영 게이트**: 실제 외부 검토·후속연결/BSSA 책임 증빙을 수집한 뒤에만 `release:ready`를 재검토.
@@ -359,6 +361,7 @@ release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 - Cycle 41: 만 14세 미만 연령 게이트 E2E 2건 추가(19/19).
 - Cycle 42: 안전계획 메모 저장·삭제 실패 E2E 2건 추가(21/21).
 - Cycle 43: 청소년 재검사 ageGroup 유지 E2E 1건 추가(22/22).
+- Cycle 44: Cycle 37~43 푸시(`702d106`), CI 하네스 `expect_failure` 버그 수정·푸시(`4ad7914`), 두 워크플로 PASS. 사람 증빙 게이트는 계속 차단.
 
 ---
 

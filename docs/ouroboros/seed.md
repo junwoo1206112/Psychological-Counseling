@@ -280,6 +280,12 @@
 
 - [x] AC136. 청소년 결과 화면의 “다시 검사하기”는 `ageGroup=youth`로 진입하고, 같은 탭 동의를 유지한 채 안전 확인 후 PHQ-A 단계로 복귀한다.
 
+### Cycle 44 — 권장 순서 일괄 실행·CI 하네스 수정 (2026-11-09)
+
+- [x] AC137. `deploy/tests/release-harness.sh`의 `expect_failure`는 예상 실패를 성공으로 반환하고, `set -e` 때문에 exit 42로 종료되지 않는다.
+- [x] AC138. Cycle 37~43 변경(E2E 13건·기록 삭제 안내·`docs/ouroboros` 복구)이 `702d106`으로 푸시되고 Browser safety CI가 통과한다.
+- [x] AC139. Linux deployment harness가 GitHub Actions에서 통과하며, Phase 1·2·3·4·5의 실제 사람 증빙과 `release:ready` 차단은 자동 검증으로 대체하지 않는다.
+
 ## Verification
 
 ```bash
@@ -333,5 +339,5 @@ npm.cmd run build:web
 
 ## Stop Condition
 
-- AC1~AC136 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
+- AC1~AC139 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
 - 추가 변경은 새 Seed를 만들어 Phase 1부터 시작.

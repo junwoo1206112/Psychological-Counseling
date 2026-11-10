@@ -15,7 +15,7 @@ RELEASES_DIR/previous -> ...    직전 활성 릴리스
 
 `deploy/tests/release-harness.sh`는 임시 디렉터리에서 실제 Git bare remote·worktree·`flock`·심볼릭 링크를 사용합니다. `npm`과 `nginx`만 모의로 대체해 gate 실패, 산출물 누락, Nginx 설정 검사 실패, 성공 후보 전환, 제한된 롤백, 경로 탈출과 잠금 충돌에서 기존 `current/dist/index.html`이 보존되는지 확인합니다.
 
-GitHub Actions의 Ubuntu runner는 이 하네스와 Bash 구문 검사를 실행합니다. 로컬 Windows에서는 Bash가 없으므로 `npm run deploy:harness`를 실행하지 않습니다.
+GitHub Actions의 Ubuntu runner는 이 하네스와 Bash 구문 검사를 실행합니다. 로컬 Windows Git Bash에는 `flock`이 없을 수 있으므로 실제 하네스 실행은 Ubuntu CI에서 확인합니다. 예상 실패 처리는 `set -e`에서 실패 코드가 전파되지 않도록 `if` 블록으로 구현하고, `tests/deployment-script.test.js`가 잘못된 `&&` 패턴 회귀를 검사합니다.
 
 긴급 롤백은 다음처럼 과거의 완료된 릴리스 디렉터리 이름만 지정합니다.
 

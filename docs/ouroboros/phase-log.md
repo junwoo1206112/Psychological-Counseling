@@ -2265,3 +2265,65 @@ npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완�
 - 원격은 여전히 `6f251fe`이며 `docs/ouroboros` 기록과 최신 E2E가 빠져 있다.
 
 ◆ youth-retest-agegroup-e2e-complete (Path C) → next: Cycle 37~43 후속 커밋·푸시 후 P0 사람 증빙 착수
+
+## Cycle 44 — Phase 0~6 (2026-11-09): 권장 순서 일괄 실행·CI 하네스 수정
+
+### Phase 0 — Inventory
+
+- 원격 HEAD는 `6f251fe`였고 Cycle 37~43 변경과 `docs/ouroboros` 기록이 로컬에만 있었다.
+- GitHub Actions의 `Linux deployment harness`가 `6f251fe`에서 exit 42로 실패하고 있었다.
+- Phase 1·2·3·4·5의 실제 사람·기관 증빙은 저장소에 없었다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장 순서 일괄 실행을 지시했다.
+- 결정: **커밋·푸시와 CI 수정은 실행**하고, 사람 증빙이 필요한 게이트는 패킷·차단 상태만 갱신한다. 증빙을 만들거나 통과로 표시하지 않는다.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 단계 | A(임상) | B(위기) | C(구현·프라이버시) | 결론 |
+|---|---|---|---|---|
+| 커밋·푸시 | 기록 누락은 추적성 훼손 | 위기 E2E 22건 포함 | 로컬 도구·PII 제외, docs/ouroboros 추적 | 실행 |
+| Phase 3 수동 접근성 | 자동 대체 불가 | 실제 기기 필요 | 증빙 없음 | 패킷·차단 유지 |
+| Phase 2 독립 검토 | 외부 검토 필요 | 역할별 승인 필요 | 모델 검토는 승인 아님 | 패킷 생성·차단 유지 |
+| Phase 6 배포 후보 | — | TLS/PWA 실기기 필요 | 로컬 E2E·CI까지만 가능 | 자동 게이트·CI 확인 |
+| Phase 1·4·5 | 연구·법무·기관 필요 | 운영 책임 필요 | 코드 대체 불가 | 차단 유지 |
+
+### Phase 3 — Seed
+
+- AC137~AC139 추가: CI 하네스 예상 실패 처리, Cycle 37~43 푸시·CI 통과, 사람 증빙 차단 유지.
+
+### Phase 4 — Implement
+
+- `702d106`으로 Cycle 37~43 변경과 `docs/ouroboros` 기록을 커밋·푸시.
+- GitHub Actions에서 deployment harness가 exit 42로 실패하는 것을 확인. 원인은 `expect_failure`가 예상 실패 코드를 그대로 반환해 `set -e`가 스크립트를 종료시키는 버그였다.
+- `deploy/tests/release-harness.sh`: `expect_failure`를 `if "$@"; then fail ...; fi` 형태로 수정.
+- `tests/deployment-script.test.js`: 잘못된 `&&` 패턴 회귀 검사 추가.
+- `4ad7914`로 수정 커밋·푸시.
+- Phase 2 검토 패킷을 생성(범위 `SCREENING-CONNECTION-STATIC-WEB`, 해시 `743c0e64`). 실제 외부 검토 증빙은 기록하지 않았다.
+
+### Phase 5 — Evaluate
+
+```text
+git push 702d106                 → PASS
+GitHub Actions Browser safety    → PASS
+GitHub Actions Linux harness     → FAIL (exit 42)
+git push 4ad7914                 → PASS
+GitHub Actions Browser safety    → PASS
+GitHub Actions Linux harness     → PASS
+npm.cmd test                     → 88/88 PASS
+npm.cmd run test:e2e             → 22/22 PASS
+npm.cmd run manual:check         → EXPECTED BLOCKED (7개 시나리오·범위 해시 없음)
+npm.cmd run abc:evidence:check   → EXPECTED BLOCKED (A/B/C/해결승인 없음)
+npm.cmd run validation:evidence:check → EXPECTED BLOCKED (8단계 없음)
+npm.cmd run legal:evidence:check → EXPECTED BLOCKED (6단계 없음)
+npm.cmd run clinical:handoff:check → EXPECTED BLOCKED (6단계 없음)
+npm.cmd run release:ready        → EXPECTED BLOCKED (사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 저장소 정합성과 CI는 해소됐다. 남은 것은 실제 수동 접근성·기기, 독립 A/B/C, 법무·임상 운영, 한국어 타당화, 배포 후보 TLS/PWA 확인이다.
+- 다음 최고 영향 작업은 Phase 3 수동 접근성·실기기 증빙이며, 이후 Phase 2 독립 검토와 Phase 6 배포 후보 확인이다.
+
+◆ bulk-recommended-order-executed (Path C) → next: Phase 3 수동 접근성·실기기 증빙 또는 Phase 2 독립 A/B/C 검토
