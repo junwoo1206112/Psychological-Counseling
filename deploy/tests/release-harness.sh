@@ -6,7 +6,7 @@ TMP_ROOT="$(mktemp -d)"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
 fail() { echo "HARNESS FAIL: $*" >&2; exit 1; }
-expect_failure() { "$@" && fail "expected failure: $*"; }
+expect_failure() { if "$@"; then fail "expected failure: $*"; fi; }
 target_of() { readlink -f "$1"; }
 
 ORIGIN="$TMP_ROOT/origin.git"

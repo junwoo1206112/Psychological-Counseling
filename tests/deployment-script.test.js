@@ -50,6 +50,8 @@ test('Linux CI는 실제 worktree·링크를 사용하는 격리 배포 하네�
   assert.match(harness, /nginx-fail/);
   assert.match(harness, /outside-link/);
   assert.match(harness, /flock -n 9/);
+  assert.match(harness, /expect_failure\(\) \{ if "\$@"; then fail/);
+  assert.doesNotMatch(harness, /expect_failure\(\) \{ "\$@" && fail/);
   assert.match(workflow, /ubuntu-latest/);
   assert.match(workflow, /bash deploy\/tests\/release-harness\.sh/);
 });
