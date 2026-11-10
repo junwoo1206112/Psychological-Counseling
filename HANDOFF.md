@@ -96,6 +96,7 @@
 - **320px 레이아웃·위기 hydration E2E** (2026-11-09, Cycle 46): 320px 6개 화면 무가로스크롤·위기 CTA 배치 검사로 E2E 28/28. 직접 `/crisis?reason=safety`의 React hydration #418을 마운트 후 reason 렌더로 수정.
 - **안전계획 메모 위기 화면 E2E** (2026-11-09, Cycle 47): 저장한 메모가 `/crisis`에서 다시 표시되고, 전체 삭제 후 위기 화면에서도 사라지는지 검증(E2E 30/30).
 - **위험 신호 결과 메모 E2E** (2026-11-09, Cycle 48): PHQ-9 문항 9=1 urgent 결과에서 저장 메모 즉시 노출, 메모 없음 시 작성 안내를 검증(E2E 32/32).
+- **남은 페이즈 일괄 실행** (2026-11-09, Cycle 49): Cycle 45~48을 `afaa28f`로 푸시. Browser safety·Linux harness CI PASS, 범위 해시 `bbb427a5`. 사람 증빙 게이트는 계속 BLOCKED.
 
 ### 아직 안 된 것 / 배포 전 필요
 
@@ -105,10 +106,10 @@
 
 ### Git 상태
 
-- 2026-11-09 Cycle 37~43 변경과 `docs/ouroboros` 기록을 `702d106`, CI 하네스 수정을 `4ad7914`, Cycle 44 기록을 `f8782fa`로 `master`에 푸시했습니다.
+- 2026-11-09 Cycle 45~48 변경을 `afaa28f`로 `master`에 푸시했습니다. 이전 기록 커밋은 `702d106`, `4ad7914`, `f8782fa`입니다.
 - Browser safety·Linux deployment harness GitHub Actions가 현재 모두 통과합니다.
-- **Cycle 45~48 변경(수동 검증 패킷·320px E2E·위기 hydration 수정·안전계획 메모 E2E·urgent 메모 E2E)은 작업 트리에 있으며 아직 커밋 전입니다.**
-- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋과 작업 트리가 현재 앱입니다.
+- Cycle 49 실행 기록은 `docs/ouroboros/phase-log.md`에 있습니다.
+- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋이 현재 앱입니다.
 - `ouroboros/`, `Codex_AI_스킬/`, `.claude/`, `dist/`, `test-results/`, `node_modules/`는 저장소에 포함하지 않습니다.
 
 ---
@@ -320,7 +321,7 @@ release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 
 ## 7. 다음 작업 권장 순서
 
-0. **완료**: Cycle 37~43 푸시(`702d106`)와 CI 하네스 수정(`4ad7914`). 이제 실제 배포 후보·사람 증빙으로 진행하세요.
+0. **완료**: Cycle 45~48 푸시(`afaa28f`)와 두 CI PASS. 이제 실제 Phase 3 수동 접근성·기기 증빙으로 진행하세요.
 1. **한국어 타당화**: `docs/validation/korean-instrument-validation-plan.md`대로 번역 대조 → 인지면담 → 파일럿 → 본조사.
 2. **실제 스크린리더/기기 테스트**: `docs/a11y-manual-test-plan.md`대로 NVDA/VoiceOver/TalkBack, 320px·200%·전화 앱·오프라인을 현재 범위 해시로 기록.
 3. **독립 A/B/C·법무·임상 운영 게이트**: 실제 외부 검토·후속연결/BSSA 책임 증빙을 수집한 뒤에만 `release:ready`를 재검토.
@@ -372,6 +373,7 @@ release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 - Cycle 46: 320px 레이아웃 E2E 6건(28/28), 직접 위기 URL hydration #418 수정.
 - Cycle 47: 안전계획 메모 위기 화면 표시·삭제 E2E 2건(30/30).
 - Cycle 48: urgent 결과 저장 메모 노출·작성 안내 E2E 2건(32/32).
+- Cycle 49: Cycle 45~48 푸시(`afaa28f`), 두 CI PASS, 범위 해시 `bbb427a5`. 사람 증빙 게이트는 계속 차단.
 
 ---
 

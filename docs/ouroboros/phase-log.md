@@ -2530,3 +2530,60 @@ npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완�
 - 다음은 Cycle 45~48 후속 커밋·푸시와 실제 Phase 3 수동 접근성·실기기 시험이다.
 
 ◆ urgent-result-memo-e2e-complete (Path C) → next: Cycle 45~48 후속 커밋·푸시 또는 실제 Phase 3 수동 시험
+
+## Cycle 49 — Phase 0~6 (2026-11-09): 남은 페이즈 일괄 실행
+
+### Phase 0 — Inventory
+
+- 원격 HEAD는 `f8782fa`였고 Cycle 45~48 변경(수동 검증 패킷·320px E2E·위기 hydration 수정·메모 E2E)이 미커밋 상태였다.
+- `manual:check`·`abc:evidence:check`·`validation:evidence:check`·`legal:evidence:check`·`clinical:handoff:check`는 모두 실제 증빙 부재로 BLOCKED였다.
+
+### Phase 1 — Interview
+
+- 사용자가 남은 페이즈 일괄 실행을 지시했다.
+- 결정: **커밋·푸시와 자동 검증은 실행**하고, 실제 사람·기관 증빙이 필요한 Phase 1·3·4·5는 패킷·차단 상태만 유지한다. 증빙을 만들지 않는다.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 대상 | A(임상) | B(위기) | C(구현·프라이버시) | 결정 |
+|---|---|---|---|---|
+| Cycle 45~48 푸시 | 기록 추적성 유지 | E2E 32건 포함 | 비밀·로컬 도구 제외 | 실행 |
+| Phase 3 수동 | 자동 대체 불가 | 실기기 필요 | 증빙 없음 | 패킷만, 차단 유지 |
+| Phase 2 독립 검토 | 외부 검토 필요 | 역할별 승인 | 모델 검토는 승인 아님 | 패킷만, 차단 유지 |
+| Phase 4·5·1 | 연구·법무·기관 | 운영 책임 | 코드 대체 불가 | 차단 유지 |
+| Phase 6 배포 | — | TLS/PWA 실기기 | 로컬 E2E·CI까지만 | 자동 게이트·CI 확인 |
+
+### Phase 3 — Seed
+
+- AC149~AC151 추가: Cycle 45~48 푸시·CI, 현재 범위 해시 패킷, 사람 증빙 차단 유지.
+
+### Phase 4 — Implement
+
+- Cycle 45~48 변경을 `afaa28f`로 커밋·푸시.
+- GitHub Actions Browser safety·Linux deployment harness 모두 PASS 확인.
+- 현재 범위 해시 `bbb427a5`를 `manual:packet`·`abc:packet` 기준으로 확인.
+- 사람 증빙 게이트는 실행하지 않고 차단 사유만 확인했다.
+
+### Phase 5 — Evaluate
+
+```text
+git push afaa28f                 → PASS
+GitHub Actions Browser safety    → PASS
+GitHub Actions Linux harness     → PASS
+npm.cmd test                     → 90/90 PASS
+npm.cmd run test:e2e             → 32/32 PASS
+범위 해시                         → bbb427a5
+npm.cmd run manual:check         → EXPECTED BLOCKED (7개 시나리오 없음)
+npm.cmd run abc:evidence:check   → EXPECTED BLOCKED (A/B/C/해결승인 없음)
+npm.cmd run validation:evidence:check → EXPECTED BLOCKED (8단계 없음)
+npm.cmd run legal:evidence:check → EXPECTED BLOCKED (6단계 없음)
+npm.cmd run clinical:handoff:check → EXPECTED BLOCKED (6단계 없음)
+npm.cmd run release:ready        → EXPECTED BLOCKED (사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 저장소·CI·자동 검증은 최신 상태다. 남은 것은 실제 수동 접근성·기기, 독립 A/B/C, 법무·임상 운영, 한국어 타당화, 배포 후보 TLS/PWA 확인이다.
+- 다음 최고 영향 작업은 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ remaining-phases-bulk-executed (Path C) → next: Phase 3 수동 접근성·실기기 증빙 착수

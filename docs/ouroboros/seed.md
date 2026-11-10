@@ -307,6 +307,12 @@
 - [x] AC147. PHQ-9 문항 9 비영 응답으로 urgent 결과가 나오면, 저장된 안전계획 메모가 결과 화면에 즉시 읽기 전용으로 노출된다.
 - [x] AC148. 위험 신호 결과에 저장된 메모가 없으면 결과 화면에 안전계획 메모 작성 안내가 표시된다.
 
+### Cycle 49 — 남은 페이즈 일괄 실행 (2026-11-09)
+
+- [x] AC149. Cycle 45~48 변경이 `afaa28f`로 푸시되고 Browser safety·Linux deployment harness CI가 모두 통과한다.
+- [x] AC150. `manual:packet`·`abc:packet`이 현재 범위 해시 `bbb427a5`를 출력하며, 패킷은 증빙·승인이 아님을 유지한다.
+- [x] AC151. Phase 1·2·3·4·5의 실제 사람·기관 증빙이 없는 상태에서 각 evidence check와 `release:ready`는 계속 BLOCKED이며, 자동 검증으로 대체하지 않는다.
+
 ## Verification
 
 ```bash
@@ -360,5 +366,5 @@ npm.cmd run build:web
 
 ## Stop Condition
 
-- AC1~AC148 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
+- AC1~AC151 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
 - 추가 변경은 새 Seed를 만들어 Phase 1부터 시작.
