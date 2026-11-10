@@ -106,6 +106,7 @@
 - **남은 작업 일괄 실행** (2026-11-09, Cycle 56): Cycle 50~55를 `8ffcb6c`로 푸시. Browser safety·Linux harness CI PASS, 범위 해시 `bbb427a5`. 사람 증빙 게이트는 계속 BLOCKED.
 - **공식 포털 연결 실패 E2E** (2026-11-09, Cycle 57): `window.open` 예외 시 실패 안내·`mentalhealth.go.kr` 직접 주소를 표시하는지 검증(E2E 40/40).
 - **배포 후보 검증 패킷 CLI** (2026-11-09, Cycle 58): `npm.cmd run deploy:packet` 추가. 범위 해시, 자동 게이트·CI·TLS/헤더·PWA/기기·롤백 항목, 비승인 고지 출력(테스트 92/92).
+- **남은 사이클 일괄 배치** (2026-11-09, Cycle 59): Cycle 57~58을 `c17b074`로 푸시. Browser safety·Linux harness CI PASS, 범위 해시 `350cfc4f`, 패킷 3종 확인. 사람 증빙 게이트는 계속 BLOCKED.
 
 ### 아직 안 된 것 / 배포 전 필요
 
@@ -118,8 +119,10 @@
 - 2026-11-09 Cycle 50~55 변경을 `8ffcb6c`로 `master`에 푸시했습니다. 이전 기록 커밋은 `702d106`, `4ad7914`, `f8782fa`, `afaa28f`, `4a63c32`입니다.
 - Browser safety·Linux deployment harness GitHub Actions가 현재 모두 통과합니다.
 - Cycle 56 실행 기록은 `docs/ouroboros/phase-log.md`에 있습니다.
-- **Cycle 57~58 변경(공식 포털 실패 E2E·배포 패킷 CLI)은 작업 트리에 있으며 아직 커밋 전입니다.**
-- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋과 작업 트리가 현재 앱입니다.
+- 2026-11-09 Cycle 57~58 변경을 `c17b074`로 `master`에 푸시했습니다. 이전 기록 커밋은 `702d106`, `4ad7914`, `f8782fa`, `afaa28f`, `4a63c32`, `8ffcb6c`, `e21f6a0`입니다.
+- Browser safety·Linux deployment harness GitHub Actions가 현재 모두 통과합니다.
+- Cycle 59 실행 기록은 `docs/ouroboros/phase-log.md`에 있습니다.
+- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋이 현재 앱입니다.
 - `ouroboros/`, `Codex_AI_스킬/`, `.claude/`, `dist/`, `test-results/`, `node_modules/`는 저장소에 포함하지 않습니다.
 
 ---
@@ -333,7 +336,7 @@ release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 
 ## 7. 다음 작업 권장 순서
 
-0. **완료**: Cycle 50~55 푸시(`8ffcb6c`)와 두 CI PASS. 이제 실제 Phase 3 수동 접근성·기기 증빙으로 진행하세요.
+0. **완료**: Cycle 57~58 푸시(`c17b074`)와 두 CI PASS. 이제 실제 Phase 3 수동 접근성·기기 증빙으로 진행하세요.
 1. **한국어 타당화**: `docs/validation/korean-instrument-validation-plan.md`대로 번역 대조 → 인지면담 → 파일럿 → 본조사.
 2. **실제 스크린리더/기기 테스트**: `docs/a11y-manual-test-plan.md`대로 NVDA/VoiceOver/TalkBack, 320px·200%·전화 앱·오프라인을 현재 범위 해시로 기록.
 3. **독립 A/B/C·법무·임상 운영 게이트**: 실제 외부 검토·후속연결/BSSA 책임 증빙을 수집한 뒤에만 `release:ready`를 재검토.
@@ -395,6 +398,7 @@ release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 - Cycle 56: Cycle 50~55 푸시(`8ffcb6c`), 두 CI PASS, 범위 해시 `bbb427a5`. 사람 증빙 게이트는 계속 차단.
 - Cycle 57: 공식 포털 연결 실패 안내 E2E 1건(40/40).
 - Cycle 58: 배포 후보 검증 패킷 CLI(`deploy:packet`)와 회귀 테스트 2건(92/92).
+- Cycle 59: 남은 사이클 일괄 배치(`c17b074`), 두 CI PASS, 패킷 3종 해시 `350cfc4f`. 사람 증빙 게이트는 계속 차단.
 
 ---
 
