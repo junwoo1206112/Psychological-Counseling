@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assessManualEvidence } from '../lib/manual-verification.js';
+import { assessManualEvidence, REQUIRED_MANUAL_SCENARIOS } from '../lib/manual-verification.js';
+import { buildManualVerificationPacket } from '../lib/manual-verification-packet.js';
 
 const header = `| 기록 ID | 기록일 | 검증자 역할 | 환경 | 시나리오 | 결과 | 이슈/조치 식별자 |
 |---|---|---|---|---|---|---|`;
@@ -29,4 +30,22 @@ test('수동 증빙은 누락·만료·최근 실패를 배포 차단 사유로 
 
   const failed = assessManualEvidence([header, record('NVDA', 'FAIL'), scope].join('\n'), { referenceDate: '2026-11-06', scopeFingerprint: 'scope-hash' });
   assert.match(failed.blockers.join('\n'), /NVDA: 가장 최근 검증 결과가 PASS가 아닙니다/);
+});
+
+test('수동 검증 패킷은 7개 시나리오·범위 해시·비승인 고지를 포함한다', () => {
+  const packet = buildManualVerificationPacket('scope-hash');
+  assert.equal(REQUIRED_MANUAL_SCENARIOS.length, 7);
+  for (const scenario of REQUIRED_MANUAL_SCENARIOS) {
+    assert.match(packet, new RegExp(`- ${scenario} \\(`));
+  }
+  assert.match(packet, /배포 후보 범위 해시: scope-hash/);
+  assert.match(packet, /180일/);
+  assert.match(packet, /개인정보·설문 원문\/점수·통화 상대방 정보는 기록하지 않습니다/);
+  assert.match(packet, /증빙·승인·접근성 적합성 인증이 아닙니다/);
+  assert.match(packet, /기록 위치: docs\/operations\/a11y-device-evidence\.md/);
+});
+
+test('수동 검증 패킷은 범위 해시 없이 생성하지 않는다', () => {
+  assert.throws(() => buildManualVerificationPacket(''), TypeError);
+  assert.throws(() => buildManualVerificationPacket(null), TypeError);
 });

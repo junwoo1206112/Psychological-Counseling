@@ -12,10 +12,12 @@ export default function Crisis() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const reason = params.reason;
+  const [mounted, setMounted] = useState(false);
   const [memoFields, setMemoFields] = useState(null);
   const [callFailed, setCallFailed] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const plan = loadSafetyPlan();
     setMemoFields(plan?.fields || {});
   }, []);
@@ -37,7 +39,7 @@ export default function Crisis() {
           혼자 있지 않아도 됩니다. 아래 번호로 연락하거나, 믿을 수 있는 사람에게 지금 상태를 알려 주세요.
         </Text>
 
-        {reason ? (
+        {mounted && reason ? (
           <View style={s.reasonBox}>
             <Text style={s.reasonText}>
               {reason === 'asq'

@@ -33,6 +33,7 @@
     "test:e2e": "playwright test",
     "a11y": "node bin/a11y-audit.js",
     "manual:check": "node bin/validate-manual-verification.js",
+    "manual:packet": "node bin/print-manual-verification-packet.js",
     "validation:evidence:check": "node bin/validate-korean-validation-evidence.js",
     "legal:evidence:check": "node bin/validate-legal-review-evidence.js",
     "clinical:handoff:check": "node bin/validate-clinical-handoff-evidence.js",

@@ -92,6 +92,10 @@
 - **안전계획 메모 실패 E2E** (2026-11-09, Cycle 42): E2E 2건 추가로 **21/21**. 메모 저장 실패 시 저장 값·성공 문구 부재, 삭제 실패 시 기존 메모 보존을 검증.
 - **청소년 재검사 ageGroup E2E** (2026-11-09, Cycle 43): E2E 1건 추가로 **22/22**. 청소년 결과의 “다시 검사하기”가 `ageGroup=youth`로 진입하고 안전 확인 후 PHQ-A로 복귀하는지 검증.
 - **권장 순서 일괄 실행·CI 하네스 수정** (2026-11-09, Cycle 44): Cycle 37~43을 `702d106`으로 푸시. Linux harness의 `expect_failure`가 exit 42를 반환하던 버그를 `4ad7914`로 수정해 Browser safety·Linux harness CI 모두 통과. 사람 증빙 게이트는 계속 BLOCKED.
+- **수동 검증 패킷 CLI** (2026-11-09, Cycle 45): `npm.cmd run manual:packet` 추가. 현재 범위 해시, 7개 시나리오 확인 항목·통과 기준, 비식별 기록 형식, “증빙 아님” 고지를 출력. 테스트 90/90.
+- **320px 레이아웃·위기 hydration E2E** (2026-11-09, Cycle 46): 320px 6개 화면 무가로스크롤·위기 CTA 배치 검사로 E2E 28/28. 직접 `/crisis?reason=safety`의 React hydration #418을 마운트 후 reason 렌더로 수정.
+- **안전계획 메모 위기 화면 E2E** (2026-11-09, Cycle 47): 저장한 메모가 `/crisis`에서 다시 표시되고, 전체 삭제 후 위기 화면에서도 사라지는지 검증(E2E 30/30).
+- **위험 신호 결과 메모 E2E** (2026-11-09, Cycle 48): PHQ-9 문항 9=1 urgent 결과에서 저장 메모 즉시 노출, 메모 없음 시 작성 안내를 검증(E2E 32/32).
 
 ### 아직 안 된 것 / 배포 전 필요
 
@@ -101,9 +105,10 @@
 
 ### Git 상태
 
-- 2026-11-09 Cycle 37~43 변경과 `docs/ouroboros` 기록을 `702d106`으로, CI 하네스 수정을 `4ad7914`로 `master`에 푸시했습니다.
+- 2026-11-09 Cycle 37~43 변경과 `docs/ouroboros` 기록을 `702d106`, CI 하네스 수정을 `4ad7914`, Cycle 44 기록을 `f8782fa`로 `master`에 푸시했습니다.
 - Browser safety·Linux deployment harness GitHub Actions가 현재 모두 통과합니다.
-- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋이 현재 앱입니다.
+- **Cycle 45~48 변경(수동 검증 패킷·320px E2E·위기 hydration 수정·안전계획 메모 E2E·urgent 메모 E2E)은 작업 트리에 있으며 아직 커밋 전입니다.**
+- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋과 작업 트리가 현재 앱입니다.
 - `ouroboros/`, `Codex_AI_스킬/`, `.claude/`, `dist/`, `test-results/`, `node_modules/`는 저장소에 포함하지 않습니다.
 
 ---
@@ -288,13 +293,14 @@ npm.cmd run assessment:evaluate
 npm.cmd run build:web
 npm.cmd run security:build:check
 npm.cmd run test:e2e
+npm.cmd run manual:packet
 ```
 
 마지막 확인 결과:
 
 ```text
 validate              → PASS
-test                  → 88/88 PASS
+test                  → 90/90 PASS
 assessment:evaluate   → 9/9 PASS
 a11y                  → PASS
 skill:check           → PASS
@@ -304,7 +310,7 @@ pwa:check             → PASS
 expo install --check  → PASS (Dependencies are up to date)
 npm ci                → PASS (클린 설치, 배포 스크립트와 동일)
 build:web             → PASS (9 static routes)
-test:e2e              → 22/22 Chromium PASS
+test:e2e              → 32/32 Chromium PASS
 audit --omit=dev      → 5 moderate, 0 high, 0 critical
 GitHub Actions        → Browser safety PASS, Linux deployment harness PASS
 release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
@@ -362,6 +368,10 @@ release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 - Cycle 42: 안전계획 메모 저장·삭제 실패 E2E 2건 추가(21/21).
 - Cycle 43: 청소년 재검사 ageGroup 유지 E2E 1건 추가(22/22).
 - Cycle 44: Cycle 37~43 푸시(`702d106`), CI 하네스 `expect_failure` 버그 수정·푸시(`4ad7914`), 두 워크플로 PASS. 사람 증빙 게이트는 계속 차단.
+- Cycle 45: 수동 접근성·실기기 검증 패킷 CLI(`manual:packet`)와 회귀 테스트 추가(90/90).
+- Cycle 46: 320px 레이아웃 E2E 6건(28/28), 직접 위기 URL hydration #418 수정.
+- Cycle 47: 안전계획 메모 위기 화면 표시·삭제 E2E 2건(30/30).
+- Cycle 48: urgent 결과 저장 메모 노출·작성 안내 E2E 2건(32/32).
 
 ---
 

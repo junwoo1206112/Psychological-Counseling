@@ -45,6 +45,18 @@ async function completeLowRiskSurvey(page, ageLabel = '만 18세 이상') {
   await expect(page).toHaveURL(/\/result$/);
 }
 
+async function completeUrgentSurvey(page, ageLabel = '만 18세 이상') {
+  await startSurvey(page, ageLabel);
+  await moveToSafety(page);
+  for (let index = 0; index < 4; index += 1) await page.getByRole('radio', { name: '아니요' }).click();
+  for (let index = 0; index < 8; index += 1) await page.getByRole('radio', { name: '전혀 없었다' }).click();
+  await page.getByRole('radio', { name: '며칠 동안' }).click();
+  await page.getByRole('radio', { name: '전혀 어렵지 않았다' }).click();
+  for (let index = 0; index < 7; index += 1) await page.getByRole('radio', { name: '전혀 없었다' }).click();
+  for (let index = 0; index < 4; index += 1) await page.getByRole('radio', { name: '아니요' }).click();
+  await expect(page).toHaveURL(/\/result$/);
+}
+
 test('동의 없는 설문 직접 진입은 시작 화면으로 되돌아간다', async ({ page }) => {
   const errors = capturePageErrors(page);
   await page.goto('/survey?ageGroup=adult');
@@ -356,5 +368,58 @@ test('청소년 결과의 다시 검사하기는 PHQ-A 연령대를 유지한다
   await moveToSafety(page);
   for (let index = 0; index < 4; index += 1) await page.getByRole('radio', { name: '아니요' }).click();
   await expect(page.getByText('우울 증상 · PHQ-A')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('저장한 안전계획 메모는 위기 화면에서 다시 확인된다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  await page.goto('/resources');
+  await page.getByLabel('1단계 · 나를 힘들게 하는 신호').fill('잠들기 어려울 때');
+  await page.getByLabel('4단계 · 지금 연락할 수 있는 사람').fill('믿을 수 있는 친구');
+  await page.getByText('메모 저장하기').click();
+  await expect(page.getByText(/이 기기에 저장되었습니다/)).toBeVisible();
+  await page.goto('/crisis?reason=safety');
+  await expect(page.getByText('내가 적어 둔 안전 계획 메모')).toBeVisible();
+  await expect(page.getByText('잠들기 어려울 때')).toBeVisible();
+  await expect(page.getByText('믿을 수 있는 친구')).toBeVisible();
+  await expect(page.getByText('이 메모는 이 기기에만 저장된 내용입니다.')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('안전계획 메모를 삭제하면 위기 화면에서도 사라진다', async ({ page }) => {
+  page.on('dialog', (dialog) => dialog.accept());
+  const errors = capturePageErrors(page);
+  await page.goto('/resources');
+  await page.getByLabel('1단계 · 나를 힘들게 하는 신호').fill('삭제할 메모');
+  await page.getByText('메모 저장하기').click();
+  await expect(page.getByText(/이 기기에 저장되었습니다/)).toBeVisible();
+  await page.getByText('전체 삭제').click();
+  await expect(page.getByText('저장된 메모를 모두 삭제했습니다.')).toBeVisible();
+  await page.goto('/crisis?reason=safety');
+  await expect(page.getByText('내가 적어 둔 안전 계획 메모')).toHaveCount(0);
+  await expect(page.getByText('삭제할 메모')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('위험 신호 결과는 저장된 안전계획 메모를 즉시 노출한다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  await page.goto('/resources');
+  await page.getByLabel('1단계 · 나를 힘들게 하는 신호').fill('위험 신호 때 떠오르는 메모');
+  await page.getByText('메모 저장하기').click();
+  await expect(page.getByText(/이 기기에 저장되었습니다/)).toBeVisible();
+  await completeUrgentSurvey(page);
+  await expect(page.getByText('빠른 전문가 도움이 필요해 보입니다')).toBeVisible();
+  await expect(page.getByText('내가 적어 둔 안전 계획 메모')).toBeVisible();
+  await expect(page.getByText('위험 신호 때 떠오르는 메모')).toBeVisible();
+  await expect(page.getByText(/지금 안전 계획을 적어 두면/)).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('위험 신호 결과에 저장된 메모가 없으면 작성 안내를 표시한다', async ({ page }) => {
+  const errors = capturePageErrors(page);
+  await completeUrgentSurvey(page);
+  await expect(page.getByText('빠른 전문가 도움이 필요해 보입니다')).toBeVisible();
+  await expect(page.getByText(/지금 안전 계획을 적어 두면/)).toBeVisible();
+  await expect(page.getByText('내가 적어 둔 안전 계획 메모')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

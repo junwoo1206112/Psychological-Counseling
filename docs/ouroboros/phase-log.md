@@ -2327,3 +2327,206 @@ npm.cmd run release:ready        → EXPECTED BLOCKED (사람 증빙 미완료)
 - 다음 최고 영향 작업은 Phase 3 수동 접근성·실기기 증빙이며, 이후 Phase 2 독립 검토와 Phase 6 배포 후보 확인이다.
 
 ◆ bulk-recommended-order-executed (Path C) → next: Phase 3 수동 접근성·실기기 증빙 또는 Phase 2 독립 A/B/C 검토
+
+## Cycle 45 — Phase 0~6 (2026-11-09): 수동 검증 패킷 CLI
+
+### Phase 0 — Inventory
+
+- Phase 3 수동 접근성·실기기 증빙은 7개 시나리오 모두 BLOCKED이며, 실제 장비·보조기술 시험 없이는 해제할 수 없다.
+- 기존 `abc:packet`과 달리, 사람이 수행할 수동 검증의 시나리오·범위 해시·기록 형식을 한 번에 전달하는 CLI가 없었다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서, 증빙을 대체하지 않는 **수동 검증 준비 패킷 CLI**를 구현 대상으로 확정했다.
+- 비목표: 실제 NVDA/VoiceOver/TalkBack/기기 시험 수행, PASS 기록 생성, `manual:check` 차단 해제.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 자동 검사·패킷은 실제 보조기술 사용자 경험을 대체하지 못함 | 비승인·비증빙 고지 |
+| B(위기·자살예방) | 위기 CTA·전화 앱·오프라인 안내가 시나리오에 포함돼야 함 | 7개 필수 시나리오·통과 기준 |
+| C(구현·프라이버시) | 현재 범위 해시·비식별 기록 형식이 필요 | 범위 지문·기록 규칙 출력, PII 금지 |
+
+### Phase 3 — Seed
+
+- AC140~AC142 추가: 패킷 출력, 비승인 고지, 범위 해시 필수·차단 유지.
+
+### Phase 4 — Implement
+
+- `lib/manual-verification-packet.js`: 시나리오 가이드와 패킷 문자열 생성, 범위 해시 필수 검증.
+- `bin/print-manual-verification-packet.js`, `npm run manual:packet` 추가.
+- `tests/manual-verification.test.js`: 7개 시나리오·범위 해시·PII 금지·비승인 고지, 해시 누락 거부 회귀 2건 추가.
+- `docs/a11y-manual-test-plan.md`, `docs/operations/a11y-device-evidence.md`: 패킷은 준비 자료이며 증빙이 아님을 명시.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run manual:packet        → PASS (범위 해시 a62f2154, 7개 시나리오)
+npm.cmd test                     → 90/90 PASS
+npm.cmd run a11y                 → PASS
+npm.cmd run skill:check          → PASS
+npm.cmd run manual:check         → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready        → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 이제 Phase 3 실행자는 `manual:packet` 출력과 `docs/operations/a11y-device-evidence.md`로 실제 시험을 기록할 수 있다. 실제 PASS 기록 전까지 배포 차단은 유지된다.
+- 다음 최고 영향 작업은 실제 NVDA·VoiceOver·TalkBack·320px·200%·전화 앱·오프라인 PWA 시험이다.
+
+◆ manual-verification-packet-ready (Path C) → next: 실제 Phase 3 수동 접근성·실기기 시험 기록
+
+## Cycle 46 — Phase 0~6 (2026-11-09): 320px 레이아웃·위기 hydration E2E
+
+### Phase 0 — Inventory
+
+- 320px 레이아웃 회귀를 자동으로 감지하는 테스트가 없었다.
+- 직접 `/crisis?reason=safety` 진입 시 정적 HTML과 클라이언트 첫 렌더의 `reason` 텍스트가 달라 React hydration #418이 발생했다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **320px 핵심 화면 레이아웃 E2E**와 발견된 hydration 결함 수정을 구현 대상으로 확정했다.
+- 비목표: 수동 접근성 증빙 대체, 200% 확대 자동 판정, 디자인 변경.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 자동 레이아웃 검사는 수동 접근성 검증을 대체하지 않음 | 자동 회귀·수동 증빙 분리 유지 |
+| B(위기·자살예방) | 작은 화면에서 위기 CTA가 잘리거나 hydration 오류가 나면 안 됨 | CTA 화면 내 배치·pageerror 0 확인 |
+| C(구현·프라이버시) | 320px 무가로스크롤·쿼리 직접 진입 안정성 필요 | 6개 화면 검사, 마운트 후 reason 렌더 |
+
+### Phase 3 — Seed
+
+- AC143~AC144 추가: 320px 레이아웃, 위기 직접 진입 hydration.
+
+### Phase 4 — Implement
+
+- `e2e/layout.spec.js`: 320×720 viewport에서 인트로·설문·위기·자원·센터·결과 가드의 무가로스크롤과 위기 CTA 배치를 검사.
+- `app/crisis.js`: `mounted` 상태를 두고 `reason` 안내를 마운트 후에만 렌더해 hydration mismatch 제거.
+- **실시간 보완 1**: 접근성 라벨·지역명 선택자를 실제 값(`109 자살예방상담전화로 연결`, `119 응급 구급으로 연결`, `서울특별시`)으로 보정.
+- **실시간 보완 2**: `boundingBox()`가 null을 반환하는 경우가 있어 `getBoundingClientRect()` 기반 검사로 변경.
+- **실시간 보완 3**: PowerShell 치환 과정에서 생긴 UTF-8 BOM을 제거.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run test:e2e              → PASS (28/28 Chromium)
+npm.cmd test                      → 90/90 PASS
+npm.cmd run validate              → PASS
+npm.cmd run a11y                  → PASS
+npm.cmd run skill:check           → PASS
+npm.cmd run security:build:check  → PASS
+npm.cmd run manual:check          → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 320px 레이아웃과 직접 위기 URL은 자동 회귀로 고정됐지만, VIEWPORT-320 수동 증빙을 대체하지 않는다.
+- 다음은 실제 NVDA·VoiceOver·TalkBack·전화 앱·오프라인 PWA 시험과 Cycle 45~46 후속 커밋·푸시다.
+
+◆ 320px-layout-crisis-hydration-complete (Path C) → next: Cycle 45~46 후속 커밋·푸시 또는 실제 Phase 3 수동 시험
+
+## Cycle 47 — Phase 0~6 (2026-11-09): 안전계획 메모 위기 화면 E2E
+
+### Phase 0 — Inventory
+
+- 안전계획 메모는 저장·삭제 단위 테스트가 있었지만, 저장한 메모가 `/crisis`에서 실제로 다시 표시되는지 브라우저 검사가 없었다.
+- 삭제 후 위기 화면에 남는 회귀도 자동 검사로 고정되어 있지 않았다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **안전계획 메모 위기 화면 표시·삭제 E2E 2건**을 구현 대상으로 확정했다.
+- 비목표: 안전계획 문구·단계 변경, 자동 공유·서버 전송.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 메모는 전문가와 점검할 보조 수단이며 임상 판단이 아님 | 저장·표시만 검증 |
+| B(위기·자살예방) | 위기 화면에서 저장 메모를 다시 확인할 수 있어야 함 | `/resources` 저장 → `/crisis` 표시 |
+| C(구현·프라이버시) | 기기 내 저장·삭제가 화면에 일관되게 반영 | 삭제 후 위기 화면에서 제거 확인 |
+
+### Phase 3 — Seed
+
+- AC145~AC146 추가: 위기 화면 메모 표시, 삭제 후 제거.
+
+### Phase 4 — Implement
+
+- `e2e/safety-flow.spec.js`: E2E 2건 추가.
+  - 1·4단계 메모 저장 → `/crisis?reason=safety`에서 제목·내용·기기 내 저장 고지 확인.
+  - 메모 저장 후 전체 삭제 → `/crisis`에서 메모 제목·내용 부재 확인.
+- 이번 사이클은 첫 실행에서 30/30 통과했으며 제품 코드 수정은 없었다.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run test:e2e              → PASS (30/30 Chromium)
+npm.cmd test                      → 90/90 PASS
+npm.cmd run validate              → PASS
+npm.cmd run a11y                  → PASS
+npm.cmd run skill:check           → PASS
+npm.cmd run security:build:check  → PASS
+npm.cmd run manual:check          → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 안전계획 메모의 저장·표시·삭제 경로는 브라우저 회귀 검사로 고정됐다.
+- 다음은 Cycle 45~47 후속 커밋·푸시와 실제 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ safety-plan-memo-crisis-e2e-complete (Path C) → next: Cycle 45~47 후속 커밋·푸시 또는 실제 Phase 3 수동 시험
+
+## Cycle 48 — Phase 0~6 (2026-11-09): 위험 신호 결과 메모 노출 E2E
+
+### Phase 0 — Inventory
+
+- AC29(위험 신호 결과에서 저장 메모 즉시 노출)는 정적 감사·단위 테스트만 있고, 실제 urgent 결과 화면의 저장 메모/작성 안내 분기를 브라우저에서 검증하지 않았다.
+- PHQ-9 문항 9를 1점으로 응답하고 ASQ를 음성으로 유지하면 급성은 아니지만 urgent 결과가 나온다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **urgent 결과의 저장 메모 노출·작성 안내 E2E 2건**을 구현 대상으로 확정했다.
+- 비목표: 문항·점수·위험 라우팅 변경, 메모 자동 공유.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 문항 9 비영 응답은 low로 종결되면 안 됨 | urgent 결과 확인 |
+| B(위기·자살예방) | 위험 신호 결과에서 저장 메모를 즉시 상기시켜야 함 | 저장 메모 노출 / 없으면 작성 안내 |
+| C(구현·프라이버시) | 메모는 기기 내 저장만, 결과 화면에서 읽기 전용 | 표시 내용·저장 경계 확인 |
+
+### Phase 3 — Seed
+
+- AC147~AC148 추가: urgent 결과 저장 메모 노출, 메모 없음 시 작성 안내.
+
+### Phase 4 — Implement
+
+- `e2e/safety-flow.spec.js`: `completeUrgentSurvey` 헬퍼와 E2E 2건 추가.
+  - 메모 저장 → 문항 9=1 urgent 결과 → 결과 화면에 저장 메모 표시, 작성 안내 부재.
+  - 메모 없음 → urgent 결과 화면에 작성 안내 표시, 저장 메모 제목 부재.
+- 이번 사이클은 첫 실행에서 32/32 통과했으며 제품 코드 수정은 없었다.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run test:e2e              → PASS (32/32 Chromium)
+npm.cmd test                      → 90/90 PASS
+npm.cmd run validate              → PASS
+npm.cmd run a11y                  → PASS
+npm.cmd run skill:check           → PASS
+npm.cmd run security:build:check  → PASS
+npm.cmd run manual:check          → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 위험 신호 결과의 메모 노출·작성 안내 분기는 브라우저 회귀 검사로 고정됐다.
+- 다음은 Cycle 45~48 후속 커밋·푸시와 실제 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ urgent-result-memo-e2e-complete (Path C) → next: Cycle 45~48 후속 커밋·푸시 또는 실제 Phase 3 수동 시험
