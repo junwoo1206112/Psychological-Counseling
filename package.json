@@ -27,6 +27,7 @@
     "deploy:harness": "bash deploy/tests/release-harness.sh",
     "deploy:packet": "node bin/print-deployment-verification-packet.js",
     "phase:status": "node bin/print-phase-status.js",
+    "deploy:smoke": "node bin/check-deployed-site.js",
     "build:android": "eas build --platform android --profile production",
     "build:ios": "eas build --platform ios --profile production",
     "test": "node --test \"tests/**/*.test.js\"",

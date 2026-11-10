@@ -374,6 +374,12 @@
 - [x] AC172. 640×512(1280×1024의 200% 확대 상당) viewport에서 인트로·위기·자원·센터·결과 가드가 가로 스크롤 없이 핵심 CTA를 노출한다.
 - [x] AC173. 이 자동 reflow 검사는 실제 NVDA·VoiceOver·TalkBack·전화 앱·설치 PWA 수동 증빙을 대체하지 않으며, `manual:check`는 계속 BLOCKED다.
 
+### Cycle 63 — 배포 후보 스모크 검사 CLI (2026-11-09)
+
+- [x] AC174. `deploy:smoke`는 HTTPS(또는 로컬호스트), CSP 필수 지시어·X-Frame-Options DENY·nosniff·HTML no-cache·앱 JS 번들, manifest, 서비스 워커, 오프라인 위기 링크, `/crisis`를 검사한다.
+- [x] AC175. 검사 결과는 PASS/FAIL과 항목별 실패 사유를 출력하며, 실제 사람 증빙·법무/임상 승인·실기기 PWA 검증을 대체하지 않는다고 고지한다.
+- [x] AC176. `deploy:smoke`는 실제 배포 승인이나 `release:ready` 차단 해제를 수행하지 않는다.
+
 ## Verification
 
 ```bash
@@ -427,5 +433,5 @@ npm.cmd run build:web
 
 ## Stop Condition
 
-- AC1~AC173 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
+- AC1~AC176 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
 - 추가 변경은 새 Seed를 만들어 Phase 1부터 시작.

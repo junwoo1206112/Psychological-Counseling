@@ -3248,3 +3248,53 @@ npm.cmd run release:ready        → EXPECTED BLOCKED
 - 자동 reflow PASS를 수동 PASS로 기록하면 증빙 조작이므로 금지한다.
 
 ◆ phase3-automated-reflow-proxy-complete (Path C) → next: Cycle 60~62 후속 커밋·푸시 후 실제 Phase 3 수동 시험
+
+## Cycle 63 — Phase 0~6 (2026-11-09): 배포 후보 스모크 검사 CLI
+
+### Phase 0 — Inventory
+
+- Phase 3 실제 수동 증빙은 이 환경에서 수행할 수 없고, Phase 6은 실제 배포 URL의 헤더·PWA·오프라인 응답을 확인할 도구가 없었다.
+- 기존 `deploy:packet`은 체크리스트만 출력하고 실제 URL 응답을 검사하지 않았다.
+
+### Phase 1 — Interview
+
+- 사용자가 “아까 같은 방식”으로 다음 구현을 진행하도록 지시했다.
+- 결정: **실제 배포 URL을 읽기 전용으로 검사하는 `deploy:smoke` CLI**를 구현한다. 검사 결과는 증빙·승인이 아니다.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 배포 검사는 앱 로직을 바꾸지 않음 | 읽기 전용 HTTP 검사 |
+| B(위기·자살예방) | TLS/CSP/오프라인 위기 안내가 실제 응답에서 유지돼야 함 | offline.html·109/119·헤더 검사 |
+| C(구현·프라이버시) | 응답 본문만 검사, 사용자 데이터 전송 없음 | GET 검사·비승인 고지 |
+
+### Phase 3 — Seed
+
+- AC174~AC176 추가: 스모크 검사, 비승인 고지, 차단 유지.
+
+### Phase 4 — Implement
+
+- `lib/deployed-site-check.js`: URL/HTTPS, 루트 헤더·CSP·앱 번들, manifest, SW, offline, `/crisis` 검사와 fake-fetch 테스트 가능한 순수 검증 함수.
+- `bin/check-deployed-site.js`, `npm run deploy:smoke` 추가. URL 없으면 사용법·종료 코드 2.
+- `tests/deployed-site-check.test.js`: HTTPS/헤더/매니페스트/SW/오프라인/정상·실패 스모크 4건.
+- 이번 사이클은 test 98/98, 제품 코드 수정 없음.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd test                     → 98/98 PASS
+npm.cmd run test:e2e             → 46/46 PASS
+npm.cmd run deploy:smoke         → 사용법 출력(URL 없음, exit 2)
+npm.cmd run a11y                 → PASS
+npm.cmd run skill:check          → PASS
+npm.cmd run manual:check         → EXPECTED BLOCKED
+npm.cmd run release:ready        → EXPECTED BLOCKED
+```
+
+### Phase 6 — Evolve
+
+- 실제 배포 후보 URL이 준비되면 `npm.cmd run deploy:smoke -- https://<후보>`로 헤더·PWA·오프라인 응답을 1차 확인할 수 있다.
+- 이 검사는 실제 기기 PWA·기존 탭 갱신·법무/임상 승인을 대체하지 않는다.
+
+◆ deployed-site-smoke-check-ready (Path C) → next: 실제 배포 후보 URL에서 deploy:smoke 실행 또는 실제 Phase 3 수동 시험

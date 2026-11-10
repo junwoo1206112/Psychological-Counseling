@@ -110,6 +110,7 @@
 - **저장소 차단 자원·위기 E2E** (2026-11-09, Cycle 60): localStorage 차단 시 자원 화면 메모 입력 비활성·위기 화면 109 CTA 유지를 검증(E2E 41/41).
 - **페이즈 상태 요약 CLI** (2026-11-09, Cycle 61): `npm.cmd run phase:status` 추가. Phase 0~6 상태·차단 수·확인 명령·비승인 고지를 읽기 전용으로 출력(테스트 94/94).
 - **Phase 3 자동 reflow 보강** (2026-11-09, Cycle 62): 640×512(200% 확대 상당)에서 인트로·위기·자원·센터·결과 가드 무가로스크롤·CTA 배치 검사 5건 추가(E2E 46/46). 수동 NVDA/VoiceOver/TalkBack/기기 증빙은 여전히 BLOCKED.
+- **배포 후보 스모크 검사 CLI** (2026-11-09, Cycle 63): `npm.cmd run deploy:smoke -- https://<후보>` 추가. HTTPS·CSP·프레임 차단·캐시·앱 번들·manifest·SW·오프라인 위기·`/crisis`를 읽기 전용 검사(테스트 98/98).
 
 ### 아직 안 된 것 / 배포 전 필요
 
@@ -125,7 +126,7 @@
 - 2026-11-09 Cycle 57~58 변경을 `c17b074`로 `master`에 푸시했습니다. 이전 기록 커밋은 `702d106`, `4ad7914`, `f8782fa`, `afaa28f`, `4a63c32`, `8ffcb6c`, `e21f6a0`입니다.
 - Browser safety·Linux deployment harness GitHub Actions가 현재 모두 통과합니다.
 - Cycle 59 실행 기록은 `docs/ouroboros/phase-log.md`에 있습니다.
-- **Cycle 60~62 변경(저장소 차단 E2E·페이즈 상태 CLI·200% 상당 reflow E2E)은 작업 트리에 있으며 아직 커밋 전입니다.**
+- **Cycle 63 변경(배포 후보 스모크 검사 CLI)은 작업 트리에 있으며 아직 커밋 전입니다.**
 - 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋과 작업 트리가 현재 앱입니다.
 - `ouroboros/`, `Codex_AI_스킬/`, `.claude/`, `dist/`, `test-results/`, `node_modules/`는 저장소에 포함하지 않습니다.
 
@@ -315,13 +316,14 @@ npm.cmd run manual:packet
 npm.cmd run abc:packet
 npm.cmd run deploy:packet
 npm.cmd run phase:status
+npm.cmd run deploy:smoke -- https://<배포-후보-도메인>
 ```
 
 마지막 확인 결과:
 
 ```text
 validate              → PASS
-test                  → 94/94 PASS
+test                  → 98/98 PASS
 assessment:evaluate   → 9/9 PASS
 a11y                  → PASS
 skill:check           → PASS
@@ -407,6 +409,7 @@ release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 - Cycle 60: 저장소 차단 자원·위기 E2E 1건(41/41).
 - Cycle 61: 페이즈 상태 요약 CLI(`phase:status`)와 회귀 테스트 2건(94/94).
 - Cycle 62: Phase 3 자동 reflow E2E 5건(46/46). 수동 접근성 증빙은 계속 BLOCKED.
+- Cycle 63: 배포 후보 스모크 검사 CLI(`deploy:smoke`)와 회귀 테스트 4건(98/98).
 
 ---
 
