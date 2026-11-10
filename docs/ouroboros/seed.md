@@ -338,6 +338,12 @@
 
 - [x] AC158. 인트로의 “본문으로 건너뛰기” 링크를 키보드로 활성화하면 `#root`가 포커스를 받고 pageerror가 발생하지 않는다.
 
+### Cycle 56 — 남은 작업 일괄 실행 (2026-11-09)
+
+- [x] AC159. Cycle 50~55 변경이 `8ffcb6c`로 푸시되고 Browser safety·Linux deployment harness CI가 모두 통과한다.
+- [x] AC160. `manual:packet`·`abc:packet`이 현재 범위 해시 `bbb427a5`를 출력하며, 두 패킷은 증빙·승인이 아님을 유지한다.
+- [x] AC161. Phase 1·2·3·4·5의 실제 사람·기관 증빙이 없는 상태에서 각 evidence check와 `release:ready`는 계속 BLOCKED이며, 자동 검증으로 대체하지 않는다.
+
 ## Verification
 
 ```bash
@@ -391,5 +397,5 @@ npm.cmd run build:web
 
 ## Stop Condition
 
-- AC1~AC158 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
+- AC1~AC161 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
 - 추가 변경은 새 Seed를 만들어 Phase 1부터 시작.
