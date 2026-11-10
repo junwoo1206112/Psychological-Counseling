@@ -3098,3 +3098,153 @@ release:ready                    → EXPECTED BLOCKED
 - 다음은 실제 Phase 3 수동 접근성·실기기 시험이다.
 
 ◆ remaining-cycles-batched (Path C) → next: Phase 3 수동 접근성·실기기 증빙 착수
+
+## Cycle 60 — Phase 0~6 (2026-11-09): 저장소 차단 자원·위기 E2E
+
+### Phase 0 — Inventory
+
+- `localStorage` 차단 시 결과·기록 화면은 E2E로 검증했지만, 자원 화면의 메모 입력 비활성화와 위기 화면 자원 유지는 브라우저 검사가 없었다.
+- 저장소 장애가 자원·위기 안내를 가리면 안 된다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **저장소 차단 자원·위기 E2E 1건**을 구현 대상으로 확정했다.
+- 비목표: 저장 기능 확대, 서버 전송.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 저장 장애는 선별 결과와 무관 | 자원 화면만 확인 |
+| B(위기·자살예방) | 위기 화면 자원·109 안내 유지 | `/crisis` 렌더·109 확인 |
+| C(구현·프라이버시) | 저장 불가 시 메모 입력 비노출 | 입력 부재·안내 확인 |
+
+### Phase 3 — Seed
+
+- AC169 추가: 저장소 차단 자원·위기 렌더.
+
+### Phase 4 — Implement
+
+- `e2e/safety-flow.spec.js`: localStorage getter 차단 → `/resources` 저장 불가 안내·입력 부재·자원 heading 확인 → `/crisis` heading·109 CTA 확인.
+- 이번 사이클은 첫 실행에서 41/41 통과했으며 제품 코드 수정은 없었다.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run test:e2e              → PASS (41/41 Chromium)
+npm.cmd test                      → 92/92 PASS
+npm.cmd run validate              → PASS
+npm.cmd run a11y                  → PASS
+npm.cmd run skill:check           → PASS
+npm.cmd run security:build:check  → PASS
+npm.cmd run manual:check          → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 저장소 장애 시 자원·위기 안내 유지가 브라우저 회귀 검사로 고정됐다.
+- 자동화 가능한 안전 회귀는 사실상 소진됐다. 다음은 실제 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ storage-blocked-resources-crisis-e2e-complete (Path C) → next: 실제 Phase 3 수동 접근성·실기기 증빙 착수
+
+## Cycle 61 — Phase 0~6 (2026-11-09): 페이즈 상태 요약 CLI
+
+### Phase 0 — Inventory
+
+- 자동 안전 회귀는 41건으로 소진됐고, 남은 병목은 사람 증빙이었다.
+- `release:ready`는 상세 차단 사유를 길게 출력하지만, Phase 0~6 상태와 확인 명령을 한눈에 보여주는 도구가 없었다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **읽기 전용 페이즈 상태 요약 CLI**를 구현 대상으로 확정했다.
+- 비목표: 증빙 생성, PASS 판정 자동화, `release:ready` 차단 해제.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 상태 요약은 검증을 대체하지 않음 | 비승인 고지 |
+| B(위기·자살예방) | 수동 접근성·임상 운영 차단을 숨기지 않음 | BLOCKED·차단 수 표시 |
+| C(구현·프라이버시) | 기존 검증기만 재사용, 쓰기 없음 | 읽기 전용 CLI |
+
+### Phase 3 — Seed
+
+- AC170~AC171 추가: 페이즈 상태 요약, 비승인·차단 유지.
+
+### Phase 4 — Implement
+
+- `lib/phase-status.js`: 기존 manual/ABC/validation/legal/clinical 검증기를 재사용해 Phase 0~6 상태·차단 수·명령 생성.
+- `bin/print-phase-status.js`, `npm run phase:status` 추가.
+- `tests/phase-status.test.js`: Phase 0~6·범위 해시·확인 명령·비승인 고지, 사람 증빙 페이즈 BLOCKED 회귀 2건.
+- 이번 사이클은 test 94/94, 제품 코드 수정 없음.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run phase:status         → PASS (Phase 0~6, 범위 해시 e75db4a3)
+npm.cmd test                     → 94/94 PASS
+npm.cmd run test:e2e             → 41/41 PASS
+npm.cmd run a11y                 → PASS
+npm.cmd run skill:check          → PASS
+npm.cmd run release:ready        → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 이제 남은 페이즈 상태를 `phase:status`로 한 번에 확인할 수 있다. 실제 증빙 전까지 Phase 1~5는 BLOCKED다.
+- 자동화 가능한 구현은 이 CLI로 마무리한다. 다음은 실제 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ phase-status-cli-ready (Path C) → next: Cycle 60~61 후속 커밋·푸시 후 실제 Phase 3 수동 시험
+
+## Cycle 62 — Phase 0~6 (2026-11-09): Phase 3 자동 reflow 보강
+
+### Phase 0 — Inventory
+
+- Phase 3은 `manual:check`에서 8건 차단 상태였고, NVDA·VoiceOver·TalkBack·실제 전화 앱·설치 PWA는 이 환경에 없었다.
+- 자동 프록시는 320px·오프라인 PWA·skip link까지 있었지만 200% 확대 상당 reflow 검사는 없었다.
+
+### Phase 1 — Interview
+
+- 사용자가 Phase 3 일괄 진행을 지시했다.
+- 결정: **자동 reflow 프록시는 구현**하고, 실제 수동 PASS 기록은 만들지 않는다. Phase 3은 자동으로 완료 처리하지 않는다.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 자동 reflow는 수동 확대 검증을 대체하지 않음 | 자동 프록시로만 기록 |
+| B(위기·자살예방) | 200% 확대에서도 위기 CTA가 잘리면 안 됨 | 640×512에서 CTA 배치 확인 |
+| C(구현·프라이버시) | 읽기 전용 레이아웃 검사·기기 접근 없음 | Playwright viewport만 변경 |
+
+### Phase 3 — Seed
+
+- AC172~AC173 추가: 200% 상당 reflow, 수동 증빙 차단 유지.
+
+### Phase 4 — Implement
+
+- `e2e/zoom.spec.js`: 640×512 viewport에서 인트로·위기·자원·센터·결과 가드의 무가로스크롤·CTA 배치 검사 5건.
+- `manual:packet`을 현재 범위 해시 `e75db4a3`로 재생성.
+- `manual:check` 차단 사유를 재확인했으며 PASS 기록은 추가하지 않았다.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run test:e2e             → PASS (46/46 Chromium)
+npm.cmd test                     → 94/94 PASS
+npm.cmd run a11y                 → PASS
+npm.cmd run skill:check          → PASS
+npm.cmd run security:build:check → PASS
+npm.cmd run manual:packet        → PASS (범위 해시 e75db4a3)
+npm.cmd run manual:check         → EXPECTED BLOCKED (8건, 실제 수동 기록 없음)
+npm.cmd run phase:status         → Phase 3 BLOCKED
+npm.cmd run release:ready        → EXPECTED BLOCKED
+```
+
+### Phase 6 — Evolve
+
+- Phase 3의 자동 프록시는 보강됐지만 실제 사람 증빙은 여전히 필요하다.
+- 남은 Phase 3 수동 항목: NVDA, VoiceOver, TalkBack, VIEWPORT-320, ZOOM-200, PHONE-APP, OFFLINE-CRISIS의 실제 수행 기록.
+- 자동 reflow PASS를 수동 PASS로 기록하면 증빙 조작이므로 금지한다.
+
+◆ phase3-automated-reflow-proxy-complete (Path C) → next: Cycle 60~62 후속 커밋·푸시 후 실제 Phase 3 수동 시험

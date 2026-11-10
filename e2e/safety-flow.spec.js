@@ -243,6 +243,27 @@ test('localStorage가 차단되어도 결과와 기록 안내가 렌더된다', 
   expect(errors).toEqual([]);
 });
 
+test('localStorage가 차단되어도 자원·위기 화면은 렌더되고 메모 입력은 비활성화된다', async ({ context, page }) => {
+  await context.addInitScript(() => {
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      get() {
+        throw new Error('localStorage blocked for test');
+      },
+    });
+  });
+  const errors = capturePageErrors(page);
+  await page.goto('/resources');
+  await expect(page.getByText('나의 안전 계획 메모 (선택)')).toBeVisible();
+  await expect(page.getByText(/현재 브라우저 환경에서는 저장 기능을 사용할 수 없어 메모를 작성할 수 없습니다/)).toBeVisible();
+  await expect(page.getByLabel('1단계 · 나를 힘들게 하는 신호')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '도움받을 곳' }).first()).toBeVisible();
+  await page.goto('/crisis?reason=safety');
+  await expect(page.getByRole('heading', { name: '지금 바로 도움을 받아 주세요.' })).toBeVisible();
+  await expect(page.getByLabel('109 자살예방상담전화로 연결')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test('sessionStorage가 차단되어도 같은 탭에서 선별과 결과가 동작한다', async ({ context, page }) => {
   await context.addInitScript(() => {
     Object.defineProperty(window, 'sessionStorage', {

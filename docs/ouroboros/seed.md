@@ -360,6 +360,20 @@
 - [x] AC167. `manual:packet`·`abc:packet`·`deploy:packet`이 현재 범위 해시 `350cfc4f`와 비승인 고지를 출력한다.
 - [x] AC168. Phase 1·2·3·4·5의 실제 사람·기관 증빙과 Phase 6 실기기/TLS 확인은 자동 배치로 대체하지 않으며, 각 evidence check와 `release:ready`는 계속 BLOCKED다.
 
+### Cycle 60 — 저장소 차단 자원·위기 E2E (2026-11-09)
+
+- [x] AC169. `localStorage`가 차단되어도 `/resources`는 메모 입력 대신 저장 불가 안내를 표시하고, `/crisis`는 109 CTA를 포함한 위기 안내를 계속 렌더한다.
+
+### Cycle 61 — 페이즈 상태 요약 CLI (2026-11-09)
+
+- [x] AC170. `phase:status`는 Phase 0~6, 현재 범위 해시, PASS/BLOCKED/CHECK 상태, 차단 건수, 확인 명령을 읽기 전용으로 출력한다.
+- [x] AC171. 요약은 증빙·승인이 아니며, 사람 증빙이 없는 페이즈를 PASS로 표시하거나 `release:ready` 차단을 해제하지 않는다.
+
+### Cycle 62 — Phase 3 자동 reflow 보강 (2026-11-09)
+
+- [x] AC172. 640×512(1280×1024의 200% 확대 상당) viewport에서 인트로·위기·자원·센터·결과 가드가 가로 스크롤 없이 핵심 CTA를 노출한다.
+- [x] AC173. 이 자동 reflow 검사는 실제 NVDA·VoiceOver·TalkBack·전화 앱·설치 PWA 수동 증빙을 대체하지 않으며, `manual:check`는 계속 BLOCKED다.
+
 ## Verification
 
 ```bash
@@ -413,5 +427,5 @@ npm.cmd run build:web
 
 ## Stop Condition
 
-- AC1~AC168 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
+- AC1~AC173 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
 - 추가 변경은 새 Seed를 만들어 Phase 1부터 시작.
