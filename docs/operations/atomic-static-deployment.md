@@ -19,7 +19,7 @@ GitHub Actions의 Ubuntu runner는 이 하네스와 Bash 구문 검사를 실행
 
 `npm.cmd run deploy:packet`은 현재 범위 해시와 자동 게이트·GitHub Actions·TLS/헤더·PWA/실기기·롤백 확인 항목을 출력합니다. 이 출력은 실제 배포 승인·증빙이 아니며, 실제 후보 환경 결과만 이 문서와 phase 기록에 남깁니다.
 
-`npm.cmd run deploy:smoke -- https://<후보>`는 실제 후보 URL에서 HTTPS, CSP·X-Frame-Options·nosniff·HTML no-cache, 앱 JS 번들, manifest, 서비스 워커, 오프라인 위기 링크, `/crisis` 응답을 읽기 전용으로 검사합니다. 이 검사는 실제 기기 PWA·기존 탭 갱신·법무/임상 승인을 대체하지 않습니다.
+`npm.cmd run deploy:smoke -- https://<후보>`는 실제 후보 URL에서 HTTPS, CSP·X-Frame-Options·nosniff·HTML no-cache, 앱 JS 번들, manifest와 아이콘 실파일(200·image/png), 서비스 워커, 오프라인 위기 링크, `/crisis` 응답, 각 응답의 HTTP 상태·Content-Type, CSP inline hydration SHA-256 일치와 `script-src 'unsafe-inline'` 부재를 읽기 전용으로 검사합니다. 이 검사는 실제 기기 PWA·기존 탭 갱신·법무/임상 승인을 대체하지 않습니다.
 
 긴급 롤백은 다음처럼 과거의 완료된 릴리스 디렉터리 이름만 지정합니다.
 

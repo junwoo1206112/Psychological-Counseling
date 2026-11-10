@@ -3298,3 +3298,52 @@ npm.cmd run release:ready        → EXPECTED BLOCKED
 - 이 검사는 실제 기기 PWA·기존 탭 갱신·법무/임상 승인을 대체하지 않는다.
 
 ◆ deployed-site-smoke-check-ready (Path C) → next: 실제 배포 후보 URL에서 deploy:smoke 실행 또는 실제 Phase 3 수동 시험
+
+## Cycle 64 — Phase 0~6 (2026-11-09): 배포 스모크 검사 강화
+
+### Phase 0 — Inventory
+
+- `deploy:smoke`는 본문·헤더 일부만 검사하고, 응답 HTTP 상태·Content-Type, 매니페스트 아이콘 실제 파일, CSP hydration 해시 일치를 확인하지 않았다.
+- CSP 해시 불일치는 실제 배포에서 앱 초기화와 위기 화면을 막을 수 있다.
+
+### Phase 1 — Interview
+
+- 사용자가 “방금 같은 방식”으로 다음 구현을 진행하도록 지시했다.
+- 결정: **배포 스모크 검사를 상태·Content-Type·아이콘 실파일·CSP 해시까지 강화**한다. 실제 승인은 아니다.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 배포 검사는 앱 로직을 바꾸지 않음 | 읽기 전용 |
+| B(위기·자살예방) | 잘못된 CSP 해시는 위기 화면 초기화를 막음 | inline SHA-256 대조 |
+| C(구현·프라이버시) | 아이콘·상태·Content-Type 실제 검증 | GET 검사, 저장 없음 |
+
+### Phase 3 — Seed
+
+- AC177~AC179 추가: 상태·Content-Type, 아이콘 실파일, CSP 해시.
+
+### Phase 4 — Implement
+
+- `lib/deployed-site-check.js`: 10초 timeout, `responseFailures`로 HTTP 상태·Content-Type 검사, manifest 아이콘 URL 실제 요청, inline script SHA-256과 CSP 대조, `script-src 'unsafe-inline'` 금지.
+- `tests/deployed-site-check.test.js`: inline 해시 fixture, 아이콘 404 실패, 잘못된 hydration 해시 회귀.
+- 이번 사이클은 test 98/98, 제품 코드 수정 없음.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd test                     → 98/98 PASS
+npm.cmd run test:e2e             → 46/46 PASS
+npm.cmd run a11y                 → PASS
+npm.cmd run skill:check          → PASS
+npm.cmd run security:build:check → PASS
+npm.cmd run manual:check         → EXPECTED BLOCKED
+npm.cmd run release:ready        → EXPECTED BLOCKED
+```
+
+### Phase 6 — Evolve
+
+- 실제 후보 URL에서 `deploy:smoke`가 상태·헤더·아이콘·CSP 해시까지 1차 검증할 수 있다.
+- 실제 기기 PWA·기존 탭 갱신·법무/임상 승인은 여전히 사람 증빙이다.
+
+◆ deployed-site-smoke-hardened (Path C) → next: 실제 배포 후보 URL에서 deploy:smoke 실행 또는 실제 Phase 3 수동 시험

@@ -380,6 +380,12 @@
 - [x] AC175. 검사 결과는 PASS/FAIL과 항목별 실패 사유를 출력하며, 실제 사람 증빙·법무/임상 승인·실기기 PWA 검증을 대체하지 않는다고 고지한다.
 - [x] AC176. `deploy:smoke`는 실제 배포 승인이나 `release:ready` 차단 해제를 수행하지 않는다.
 
+### Cycle 64 — 배포 스모크 검사 강화 (2026-11-09)
+
+- [x] AC177. `deploy:smoke`는 루트·manifest·SW·offline·crisis 응답의 HTTP 상태와 Content-Type을 검사한다.
+- [x] AC178. 매니페스트 아이콘 URL을 실제로 요청해 200·`image/png`인지 검사한다.
+- [x] AC179. 루트 HTML의 inline hydration script SHA-256이 CSP `script-src`와 일치하고, `script-src`에 `'unsafe-inline'`이 없음을 검사한다.
+
 ## Verification
 
 ```bash
@@ -433,5 +439,5 @@ npm.cmd run build:web
 
 ## Stop Condition
 
-- AC1~AC176 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
+- AC1~AC179 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
 - 추가 변경은 새 Seed를 만들어 Phase 1부터 시작.
