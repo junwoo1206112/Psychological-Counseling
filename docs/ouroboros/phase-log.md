@@ -2942,3 +2942,103 @@ npm.cmd run release:ready        → EXPECTED BLOCKED (사람 증빙 미완료)
 - 다음 최고 영향 작업은 Phase 3 수동 접근성·실기기 시험이다.
 
 ◆ remaining-work-bulk-executed (Path C) → next: Phase 3 수동 접근성·실기기 증빙 착수
+
+## Cycle 57 — Phase 0~6 (2026-11-09): 공식 포털 연결 실패 E2E
+
+### Phase 0 — Inventory
+
+- 지역 센터 공식 포털의 연결 실패 안내(AC43)는 정적 검사만 있고, 실제 브라우저에서 실패 UI가 표시되는지 검증하지 않았다.
+- `openUrl`은 `window.open` 예외를 `false`로 흡수하고 `openExternal`이 실패 안내를 렌더링한다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **공식 포털 연결 실패 E2E 1건**을 구현 대상으로 확정했다.
+- 비목표: 실제 포털 장애 재현, 외부 네트워크 의존.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 연결 실패를 성공으로 오인시키면 안 됨 | 실패 안내 표시 |
+| B(위기·자살예방) | 포털 실패 시 직접 주소 안내 필요 | `mentalhealth.go.kr` 안내 |
+| C(구현·프라이버시) | `window.open` 예외를 실패로 처리 | 예외 주입·pageerror 0 |
+
+### Phase 3 — Seed
+
+- AC162 추가: 공식 포털 연결 실패 안내.
+
+### Phase 4 — Implement
+
+- `e2e/safety-flow.spec.js`: `window.open` 예외 주입 → 서울특별시 선택 → 포털 검색 클릭 → 실패 안내·직접 주소 확인.
+- 이번 사이클은 첫 실행에서 40/40 통과했으며 제품 코드 수정은 없었다.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run test:e2e              → PASS (40/40 Chromium)
+npm.cmd test                      → 90/90 PASS
+npm.cmd run validate              → PASS
+npm.cmd run a11y                  → PASS
+npm.cmd run skill:check           → PASS
+npm.cmd run security:build:check  → PASS
+npm.cmd run manual:check          → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- 공식 포털 연결 실패 안내는 브라우저 회귀 검사로 고정됐다.
+- 다음은 Cycle 57 후속 커밋·푸시와 실제 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ center-portal-failure-e2e-complete (Path C) → next: Cycle 57 후속 커밋·푸시 또는 실제 Phase 3 수동 시험
+
+## Cycle 58 — Phase 0~6 (2026-11-09): 배포 후보 검증 패킷 CLI
+
+### Phase 0 — Inventory
+
+- Phase 6 배포 후보 검증은 실제 TLS/Nginx·PWA 기기 확인이 남아 있지만, 실행자가 자동 게이트·헤더·PWA·롤백 항목을 한 번에 확인할 패킷이 없었다.
+- `manual:packet`·`abc:packet`과 같은 준비 패킷이 필요했다.
+
+### Phase 1 — Interview
+
+- 사용자가 권장안 선택을 위임한 범위에서 **배포 후보 검증 패킷 CLI**를 구현 대상으로 확정했다.
+- 비목표: 실제 배포·TLS 변경, 실제 기기 시험, 배포 승인 생성.
+
+### Phase 2 — A/B/C Cross-validation
+
+| 관점 | 판단 | 반영 |
+|---|---|---|
+| A(임상·심리측정) | 배포 검증은 앱 동작을 바꾸지 않음 | 문항·점수 불변 |
+| B(위기·자살예방) | 배포 실패·TLS/CSP 오류가 위기 안내를 막을 수 있음 | TLS/CSP/PWA/롤백 항목 |
+| C(구현·프라이버시) | 자동 게이트·범위 해시·비승인 고지 필요 | 현재 해시 출력, 증빙 아님 고지 |
+
+### Phase 3 — Seed
+
+- AC163~AC165 추가: 배포 패킷, 필수 항목, 비승인·차단 유지.
+
+### Phase 4 — Implement
+
+- `lib/deployment-verification-packet.js`: 자동 게이트·GitHub Actions·TLS/헤더·PWA/기기·롤백 섹션과 비승인 고지 생성.
+- `bin/print-deployment-verification-packet.js`, `npm run deploy:packet` 추가.
+- `tests/deployment-packet.test.js`: 섹션·TLS/CSP/PWA/롤백/비승인 고지, 해시 누락 거부 2건.
+- `docs/operations/atomic-static-deployment.md`: 패킷 용도와 한계 기록.
+- 이번 사이클은 test 92/92, 제품 코드 수정 없음.
+
+### Phase 5 — Evaluate
+
+```text
+npm.cmd run deploy:packet        → PASS (범위 해시 350cfc4f, 5개 섹션)
+npm.cmd test                     → 92/92 PASS
+npm.cmd run test:e2e             → 40/40 PASS
+npm.cmd run a11y                 → PASS
+npm.cmd run skill:check          → PASS
+npm.cmd run manual:check         → EXPECTED BLOCKED (실제 수동 기록 없음)
+npm.cmd run release:ready        → EXPECTED BLOCKED (P0 사람 증빙 미완료)
+```
+
+### Phase 6 — Evolve
+
+- Phase 6 실행자는 `deploy:packet`으로 자동 게이트·헤더·PWA·롤백 항목을 확인할 수 있다. 실제 결과 기록 전까지 배포 승인은 없다.
+- 다음은 Cycle 57~58 후속 커밋·푸시와 실제 Phase 3 수동 접근성·실기기 시험이다.
+
+◆ deployment-verification-packet-ready (Path C) → next: Cycle 57~58 후속 커밋·푸시 또는 실제 Phase 3 수동 시험

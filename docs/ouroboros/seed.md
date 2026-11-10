@@ -344,6 +344,16 @@
 - [x] AC160. `manual:packet`·`abc:packet`이 현재 범위 해시 `bbb427a5`를 출력하며, 두 패킷은 증빙·승인이 아님을 유지한다.
 - [x] AC161. Phase 1·2·3·4·5의 실제 사람·기관 증빙이 없는 상태에서 각 evidence check와 `release:ready`는 계속 BLOCKED이며, 자동 검증으로 대체하지 않는다.
 
+### Cycle 57 — 공식 포털 연결 실패 E2E (2026-11-09)
+
+- [x] AC162. 공식 포털 열기에서 `window.open` 예외가 발생하면 실패를 성공으로 표시하지 않고, `mentalhealth.go.kr` 직접 주소 안내를 표시하며 pageerror가 발생하지 않는다.
+
+### Cycle 58 — 배포 후보 검증 패킷 CLI (2026-11-09)
+
+- [x] AC163. `deploy:packet`은 현재 범위 해시와 자동 게이트·GitHub Actions·TLS/Nginx/헤더·PWA/실기기·롤백 확인 항목을 출력한다.
+- [x] AC164. 패킷은 실제 배포 승인·증빙·접근성/법무/임상 검토가 아니며, 사람 증빙이 없으면 `release:ready`가 BLOCKED임을 고정한다.
+- [x] AC165. 패킷은 범위 해시 없이 생성되지 않고, 기존 `release:ready` 차단을 해제하지 않는다.
+
 ## Verification
 
 ```bash
@@ -397,5 +407,5 @@ npm.cmd run build:web
 
 ## Stop Condition
 
-- AC1~AC161 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
+- AC1~AC165 통과 + open 항목은 “배포 전/상업화 전” 후속으로 명시.
 - 추가 변경은 새 Seed를 만들어 Phase 1부터 시작.

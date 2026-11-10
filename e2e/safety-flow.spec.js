@@ -505,3 +505,18 @@ test('지역 선택은 공식 포털 센터 검색 URL을 연다', async ({ cont
   expect(opened.some((url) => url.includes('mentalhealth.go.kr') && url.includes('PotalHealthFacListTab2.do') && url.includes('sc3=AFCS1'))).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('공식 포털 연결 실패는 직접 주소 안내를 표시한다', async ({ context, page }) => {
+  await context.addInitScript(() => {
+    window.open = () => {
+      throw new Error('popup blocked for test');
+    };
+  });
+  const errors = capturePageErrors(page);
+  await page.goto('/centers');
+  await page.getByText('서울특별시', { exact: true }).click();
+  await page.getByText('공식 포털에서 센터 검색').click();
+  await expect(page.getByText(/공식 포털을 열지 못했습니다/)).toBeVisible();
+  await expect(page.getByText(/mentalhealth\.go\.kr/)).toBeVisible();
+  expect(errors).toEqual([]);
+});

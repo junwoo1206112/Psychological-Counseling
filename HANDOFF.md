@@ -104,6 +104,8 @@
 - **지역 센터 공식 포털 E2E** (2026-11-09, Cycle 54): 서울특별시 선택 후 공식 포털 위치기반 검색 URL(`PotalHealthFacListTab2.do`, `sc3=AFCS1...`)을 여는지 검증(E2E 38/38).
 - **키보드 건너뛰기 링크 E2E** (2026-11-09, Cycle 55): Enter 키로 `#root` 포커스가 이동하는지 검증(E2E 39/39).
 - **남은 작업 일괄 실행** (2026-11-09, Cycle 56): Cycle 50~55를 `8ffcb6c`로 푸시. Browser safety·Linux harness CI PASS, 범위 해시 `bbb427a5`. 사람 증빙 게이트는 계속 BLOCKED.
+- **공식 포털 연결 실패 E2E** (2026-11-09, Cycle 57): `window.open` 예외 시 실패 안내·`mentalhealth.go.kr` 직접 주소를 표시하는지 검증(E2E 40/40).
+- **배포 후보 검증 패킷 CLI** (2026-11-09, Cycle 58): `npm.cmd run deploy:packet` 추가. 범위 해시, 자동 게이트·CI·TLS/헤더·PWA/기기·롤백 항목, 비승인 고지 출력(테스트 92/92).
 
 ### 아직 안 된 것 / 배포 전 필요
 
@@ -116,7 +118,8 @@
 - 2026-11-09 Cycle 50~55 변경을 `8ffcb6c`로 `master`에 푸시했습니다. 이전 기록 커밋은 `702d106`, `4ad7914`, `f8782fa`, `afaa28f`, `4a63c32`입니다.
 - Browser safety·Linux deployment harness GitHub Actions가 현재 모두 통과합니다.
 - Cycle 56 실행 기록은 `docs/ouroboros/phase-log.md`에 있습니다.
-- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋이 현재 앱입니다.
+- **Cycle 57~58 변경(공식 포털 실패 E2E·배포 패킷 CLI)은 작업 트리에 있으며 아직 커밋 전입니다.**
+- 과거 커밋에는 50문항 버전이 남아 있습니다. 최신 커밋과 작업 트리가 현재 앱입니다.
 - `ouroboros/`, `Codex_AI_스킬/`, `.claude/`, `dist/`, `test-results/`, `node_modules/`는 저장소에 포함하지 않습니다.
 
 ---
@@ -302,13 +305,15 @@ npm.cmd run build:web
 npm.cmd run security:build:check
 npm.cmd run test:e2e
 npm.cmd run manual:packet
+npm.cmd run abc:packet
+npm.cmd run deploy:packet
 ```
 
 마지막 확인 결과:
 
 ```text
 validate              → PASS
-test                  → 90/90 PASS
+test                  → 92/92 PASS
 assessment:evaluate   → 9/9 PASS
 a11y                  → PASS
 skill:check           → PASS
@@ -318,7 +323,7 @@ pwa:check             → PASS
 expo install --check  → PASS (Dependencies are up to date)
 npm ci                → PASS (클린 설치, 배포 스크립트와 동일)
 build:web             → PASS (9 static routes)
-test:e2e              → 39/39 Chromium PASS
+test:e2e              → 40/40 Chromium PASS
 audit --omit=dev      → 5 moderate, 0 high, 0 critical
 GitHub Actions        → Browser safety PASS, Linux deployment harness PASS
 release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
@@ -388,6 +393,8 @@ release:ready         → EXPECTED BLOCKED (P0 사람 증빙 미완료)
 - Cycle 54: 지역 센터 공식 포털 URL E2E 1건(38/38).
 - Cycle 55: 키보드 건너뛰기 링크 E2E 1건(39/39).
 - Cycle 56: Cycle 50~55 푸시(`8ffcb6c`), 두 CI PASS, 범위 해시 `bbb427a5`. 사람 증빙 게이트는 계속 차단.
+- Cycle 57: 공식 포털 연결 실패 안내 E2E 1건(40/40).
+- Cycle 58: 배포 후보 검증 패킷 CLI(`deploy:packet`)와 회귀 테스트 2건(92/92).
 
 ---
 

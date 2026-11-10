@@ -33,6 +33,7 @@ npm.cmd run validate   # data/instruments.js 스키마·채점·라우팅 검증
 npm.cmd test           # node --test "tests/**/*.test.js" 단위 테스트(프로젝트 tests/ 한정)
 npm.cmd run a11y       # 접근성 정적 감사 + 색상 대비 검사
 npm.cmd run manual:packet # 수동 접근성·실기기 검증 준비 패킷 출력(증빙 아님)
+npm.cmd run deploy:packet # 배포 후보 검증 준비 패킷 출력(승인 아님)
 npm.cmd run skill:check # Ouroboros 인터뷰 스킬 적용 상태 검사
 npm.cmd run web        # 로컬 웹 실행
 npm.cmd run build:web  # 정적 웹 빌드

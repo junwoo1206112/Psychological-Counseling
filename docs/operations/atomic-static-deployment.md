@@ -17,6 +17,8 @@ RELEASES_DIR/previous -> ...    직전 활성 릴리스
 
 GitHub Actions의 Ubuntu runner는 이 하네스와 Bash 구문 검사를 실행합니다. 로컬 Windows Git Bash에는 `flock`이 없을 수 있으므로 실제 하네스 실행은 Ubuntu CI에서 확인합니다. 예상 실패 처리는 `set -e`에서 실패 코드가 전파되지 않도록 `if` 블록으로 구현하고, `tests/deployment-script.test.js`가 잘못된 `&&` 패턴 회귀를 검사합니다.
 
+`npm.cmd run deploy:packet`은 현재 범위 해시와 자동 게이트·GitHub Actions·TLS/헤더·PWA/실기기·롤백 확인 항목을 출력합니다. 이 출력은 실제 배포 승인·증빙이 아니며, 실제 후보 환경 결과만 이 문서와 phase 기록에 남깁니다.
+
 긴급 롤백은 다음처럼 과거의 완료된 릴리스 디렉터리 이름만 지정합니다.
 
 ```bash
